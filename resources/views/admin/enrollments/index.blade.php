@@ -84,6 +84,7 @@
                         </thead>
                         <tbody>
                             @foreach($enrollments as $enrollment)
+                            @if(!empty($enrollment->group))
                                 <tr>
                                     <td>{{ $loop->iteration + ($enrollments->perPage() * ($enrollments->currentPage() - 1)) }}</td>
                                     <td>
@@ -135,6 +136,7 @@
                                         </div>
                                     </td>
                                 </tr>
+                            @endif
                             @endforeach
                         </tbody>
                     </table>

@@ -72,7 +72,7 @@ class GradesController extends Controller
                                                    })
                            ];
                        });
-
+                  
         // Convert the collection to paginator
         $perPage = 15;
         $currentPage = $request->get('page', 1);
@@ -203,6 +203,7 @@ class GradesController extends Controller
      */
     public function show(Grade $grade)
     {
+       
         // Get recent grades for the same student
         $studentGrades = Grade::where('student_id', $grade->student_id)
                             

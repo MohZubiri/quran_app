@@ -46,10 +46,10 @@
 @section('content')
 <div class="row">
     <div class="col-md-4">
-        <div class="card mb-4">
+        <div class="mb-4 card">
             <div class="card-header">
                 <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">معلومات الطالب</h5>
+                    <h5 class="mb-0 card-title">معلومات الطالب</h5>
                     @if(!$student->user_id)
                         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createAccountModal">
                             <i class="fas fa-user-plus me-1"></i>
@@ -100,23 +100,23 @@
         </div>
     </div>
     <div class="col-md-4">
-    <div class="card mb-4">
+    <div class="mb-4 card">
             <div class="card-header">
                 <h5 class="card-title">إحصائيات الطالب</h5>
             </div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-6 mb-3">
-                        <div class="card bg-primary text-white">
-                            <div class="card-body text-center">
+                    <div class="mb-3 col-6">
+                        <div class="text-white card bg-primary">
+                            <div class="text-center card-body">
                                 <h6 class="card-title">الحلقات</h6>
                                 <p class="card-text display-6">{{ $student->enrollments->count() }}</p>
                             </div>
                         </div>
                     </div>
-                    <div class="col-6 mb-3">
-                        <div class="card bg-success text-white">
-                            <div class="card-body text-center">
+                    <div class="mb-3 col-6">
+                        <div class="text-white card bg-success">
+                            <div class="text-center card-body">
                                 <h6 class="card-title">نسبة الحضور</h6>
                                 <p class="card-text display-6">
                                     @php
@@ -129,17 +129,17 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-6 mb-3">
-                        <div class="card bg-info text-white">
-                            <div class="card-body text-center">
+                    <div class="mb-3 col-6">
+                        <div class="text-white card bg-info">
+                            <div class="text-center card-body">
                                 <h6 class="card-title">التقييمات</h6>
                                 <p class="card-text display-6">{{ $student->grades->count() }}</p>
                             </div>
                         </div>
                     </div>
-                    <div class="col-6 mb-3">
-                        <div class="card bg-warning text-white">
-                            <div class="card-body text-center">
+                    <div class="mb-3 col-6">
+                        <div class="text-white card bg-warning">
+                            <div class="text-center card-body">
                                 <h6 class="card-title">متوسط الدرجات</h6>
                                 <p class="card-text display-6">
                                     @php
@@ -154,9 +154,9 @@
                 </div>
             </div>
         </div>
-    </div>    
+    </div>
     <div class="col-md-4">
-        <div class="card mb-4">
+        <div class="mb-4 card">
             <div class="card-header">
                 <h5 class="card-title">معلومات التسجيل</h5>
             </div>
@@ -189,15 +189,35 @@
                 </table>
             </div>
         </div>
-        
-       
+        <div class="mb-4 card">
+            <div class="card-header">
+                <h5 class="card-title">حساب الطالب </h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-bordered">
+                    <tbody>
+                        <tr>
+                            <th style="width: 40%">الايميل</th>
+                            <td>{{ $account->email??'_____' }}</td>
+                        </tr>
+                        <tr>
+                            <th>كلمة السر  </th>
+                            <td><input type="password" value="{{ $account->password??'_____' }}" disabled> </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
     </div>
 </div>
 
 @if($student->initial_assessment)
 <div class="row">
     <div class="col-12">
-        <div class="card mb-4">
+        <div class="mb-4 card">
             <div class="card-header">
                 <h5 class="card-title">التقييم الأولي</h5>
             </div>
@@ -212,7 +232,7 @@
 @if($student->notes)
 <div class="row">
     <div class="col-12">
-        <div class="card mb-4">
+        <div class="mb-4 card">
             <div class="card-header">
                 <h5 class="card-title">ملاحظات إضافية</h5>
             </div>
@@ -294,7 +314,7 @@
     </div>
 </div>
 
-<div class="row mt-4">
+<div class="mt-4 row">
     <div class="col-md-6">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
@@ -337,7 +357,7 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="d-flex justify-content-end mt-3">
+                <div class="mt-3 d-flex justify-content-end">
                     <a href="{{ route('admin.attendance.index', ['student_id' => $student->id]) }}" class="btn btn-sm btn-outline-primary">
                         عرض سجل الحضور الكامل
                     </a>
@@ -350,7 +370,7 @@
             </div>
         </div>
     </div>
-    
+
     <div class="col-md-6">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
@@ -389,7 +409,7 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="d-flex justify-content-end mt-3">
+                <div class="mt-3 d-flex justify-content-end">
                     <a href="{{ route('admin.grades.index', ['student_id' => $student->id]) }}" class="btn btn-sm btn-outline-primary">
                         عرض سجل التقييمات الكامل
                     </a>

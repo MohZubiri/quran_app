@@ -277,7 +277,7 @@
                     <tbody>
                      
                         @forelse($grades as $dayGrade)
-                      
+                        @if(!empty($dayGrade['student']))
                         <tr>
                             <td>
                                 <a href="{{ route('admin.students.show', $dayGrade['student']->id) }}" class="text-decoration-none">
@@ -376,7 +376,7 @@
                                 </div>
                             </td>
                         </tr>
-                        @empty
+                      @endif  @empty
                         <tr>
                             <td colspan="8" class="text-center">لا توجد تقييمات</td>
                         </tr>

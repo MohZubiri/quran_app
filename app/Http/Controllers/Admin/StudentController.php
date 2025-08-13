@@ -38,7 +38,7 @@ class StudentController extends AdminController
         $branches = Branch::all();
         $teachers = Teacher::all();
         $groups = Group::all();
-                         
+
         return view('admin.students.index', compact('students', 'branches', 'teachers', 'groups'));
     }
 
@@ -92,8 +92,8 @@ class StudentController extends AdminController
     {
         // التصفية تتم تلقائياً عبر Global Scope
         $student->load([
-            'group.branch', 
-            'group.teacher', 
+            'group.branch',
+            'group.teacher',
             'grades' => function($query) {
                 $query->latest('date')->limit(10);
             },
@@ -104,8 +104,8 @@ class StudentController extends AdminController
                 $query->latest('date')->limit(10);
             }
         ]);
-
-        return view('admin.students.show', compact('student'));
+        $account=User::find($student->user_id);
+        return view('admin.students.show', compact('student', 'account'));
     }
 
     /**
@@ -160,7 +160,7 @@ class StudentController extends AdminController
         $student->enrollments()->delete();
         $student->grades()->delete();
         $student->attendances()->delete();
-        
+
         // Delete the student
         $student->delete();
 
@@ -192,15 +192,10 @@ class StudentController extends AdminController
         }
 
         // إنشاء بريد إلكتروني افتراضي
-        $email = strtolower(
-            transliterator_transliterate(
-                'Any-Latin; Latin-ASCII; Lower()',
-                $student->name 
-            )
-        ) . '@student.quran.com';
+        $email =$student->email ?: $student->phone . '@quran.com';
 
         // إزالة الأحرف غير المسموح بها في البريد الإلكتروني
-        $email = preg_replace('/[^a-z0-9.@]/', '', $email);
+      //  $email = preg_replace('/[^a-z0-9.@]/', '', $email);
 
         // التحقق من عدم وجود البريد الإلكتروني مسبقاً
         $count = 1;
@@ -213,7 +208,7 @@ class StudentController extends AdminController
         if(!User::where('phone', $student->phone)->where('role', 'student')->exists()) {
             try {
                 \DB::beginTransaction();
-                
+
                 // إنشاء حساب المستخدم
                 $user = User::create([
                     'name' => $student->name,
@@ -233,14 +228,15 @@ class StudentController extends AdminController
                 if (!$role) {
                     throw new \Exception('دور الطالب غير موجود في النظام');
                 }
-                
-                $user->assignRole($role->id);
+
+                $user->assignRole($role);
 
                 \DB::commit();
-                
+
                 return back()->with('success', 'تم إنشاء حساب للطالب بنجاح. برقم هاتف: ' . $student->phone);
             } catch (\Exception $e) {
                 \DB::rollback();
+
                 return back()->with('error', 'حدث خطأ أثناء إنشاء الحساب: ' . $e->getMessage());
             }
         } else {
