@@ -16,14 +16,24 @@
                 <!-- Branch Selection -->
                 <div class="mb-3">
                     <label for="branch_id" class="form-label">الفرع</label>
-                    <select class="form-select" id="branch_id" name="branch_id" required>
-                        <option value="">اختر الفرع</option>
-                        @foreach($branches as $branch)
-                            <option value="{{ $branch->id }}" {{ old('branch_id') == $branch->id ? 'selected' : '' }}>
-                                {{ $branch->name }}
-                            </option>
-                        @endforeach
-                    </select>
+                    @if(!$defaultBranch)
+                        <select class="form-select" id="branch_id" name="branch_id" required>
+                            <option value="">اختر الفرع</option>
+                            @foreach($branches as $branch)
+                                <option value="{{ $branch->id }}" {{ old('branch_id') == $branch->id ? 'selected' : '' }}>
+                                    {{ $branch->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    @else
+                        <select class="form-select" id="branch_id" disabled>
+                            <option value="{{ $defaultBranch->id }}" selected>{{ $defaultBranch->name }}</option>
+                        </select>
+                        <input type="hidden" name="branch_id" value="{{ $defaultBranch->id }}">
+                        <div class="alert alert-info mt-2">
+                            <i class="fas fa-info-circle"></i> تم تحديد الفرع تلقائياً: {{ $defaultBranch->name }}
+                        </div>
+                    @endif
                     @error('branch_id')
                         <div class="text-danger">{{ $message }}</div>
                     @enderror

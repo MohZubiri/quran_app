@@ -19,6 +19,28 @@
         </div>
         <div class="card-body">
             <form action="{{ route('admin.grades.index') }}" method="GET" class="row g-3">
+                <!-- Branch Filter -->
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="branch_id" class="form-label">الفرع</label>
+                        <select class="form-select" id="branch_id" name="branch_id" {{ $defaultBranch ? 'disabled' : '' }}>
+                            @if(!$defaultBranch)
+                                <option value="">كل الفروع</option>
+                                @foreach($branches as $branch)
+                                    <option value="{{ $branch->id }}" {{ request('branch_id') == $branch->id ? 'selected' : '' }}>
+                                        {{ $branch->name }}
+                                    </option>
+                                @endforeach
+                            @else
+                                <option value="{{ $defaultBranch->id }}" selected>{{ $defaultBranch->name }}</option>
+                            @endif
+                        </select>
+                        @if($defaultBranch)
+                            <input type="hidden" name="branch_id" value="{{ $defaultBranch->id }}">
+                        @endif
+                    </div>
+                </div>
+
                 <!-- Student Filter -->
                 <div class="col-md-3">
                     <div class="form-group">
@@ -59,6 +81,7 @@
                             <option value="behavior" {{ request('grade_type') == 'behavior' ? 'selected' : '' }}>السلوك</option>
                             <option value="attendance" {{ request('grade_type') == 'attendance' ? 'selected' : '' }}>الحضور</option>
                             <option value="appearance" {{ request('grade_type') == 'appearance' ? 'selected' : '' }}>المظهر</option>
+                            <option value="plan_score" {{ request('grade_type') == 'plan_score' ? 'selected' : '' }}>الإنجاز اليومي من الخطة</option>
                         </select>
                     </div>
                 </div>
@@ -178,6 +201,17 @@
                                 </div>
                             </div>
                         </div>
+                        
+                        <!-- Plan Score Stats -->
+                        <div class="col-md-6">
+                            <div class="card h-100 text-white" style="background-color: #6f42c1;">
+                                <div class="card-body">
+                                    <h6 class="card-title">الإنجاز اليومي من الخطة</h6>
+                                    <p class="mb-1">عدد التقييمات: {{ $stats['by_type']['plan_score']['count'] }}</p>
+                                    <p class="mb-0">المتوسط: {{ $stats['by_type']['plan_score']['average'] }}</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -270,6 +304,7 @@
                             <th>السلوك</th>
                             <th>الحضور</th>
                             <th>المظهر</th>
+                            <th>الإنجاز اليومي</th>
                             <th>التاريخ</th>
                             <th>الإجراءات</th>
                         </tr>
@@ -357,6 +392,23 @@
                                     <span class="text-muted">-</span>
                                 @endif
                             </td>
+                            <td>
+                                @if(isset($dayGrade['grades']['plan_score']))
+                                    @if($dayGrade['grades']['plan_score']->grade >= 90)
+                                        <span class="badge bg-success">{{ $dayGrade['grades']['plan_score']->grade }}</span>
+                                    @elseif($dayGrade['grades']['plan_score']->grade >= 80)
+                                        <span class="badge bg-info">{{ $dayGrade['grades']['plan_score']->grade }}</span>
+                                    @elseif($dayGrade['grades']['plan_score']->grade >= 70)
+                                        <span class="badge bg-primary">{{ $dayGrade['grades']['plan_score']->grade }}</span>
+                                    @elseif($dayGrade['grades']['plan_score']->grade >= 60)
+                                        <span class="badge bg-warning">{{ $dayGrade['grades']['plan_score']->grade }}</span>
+                                    @else
+                                        <span class="badge bg-danger">{{ $dayGrade['grades']['plan_score']->grade }}</span>
+                                    @endif
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endif
+                            </td>
                             <td>{{ $dayGrade['date'] }}</td>
                             <td>
                                 <div class="btn-group" role="group">
@@ -378,7 +430,7 @@
                         </tr>
                       @endif  @empty
                         <tr>
-                            <td colspan="8" class="text-center">لا توجد تقييمات</td>
+                            <td colspan="9" class="text-center">لا توجد تقييمات</td>
                         </tr>
                         @endforelse
                     </tbody>

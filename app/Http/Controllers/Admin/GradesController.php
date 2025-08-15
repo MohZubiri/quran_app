@@ -30,7 +30,27 @@ class GradesController extends Controller
         // Build the query with filters
         $query = Grade::with(['student.group.branch', 'subject', 'teacher']);
 
-        // Apply filters
+        // Get all branches
+        $branches = Branch::all();
+        $defaultBranch = null;
+        
+        // If there's only one branch, use it as the default filter
+        if ($branches->count() === 1) {
+            $defaultBranch = $branches->first();
+            $query->whereHas('student.group', function($q) use ($defaultBranch) {
+                $q->where('branch_id', $defaultBranch->id);
+            });
+        }
+        // Otherwise, apply filters as normal
+        else {
+            if ($request->filled('branch_id')) {
+                $query->whereHas('student.group', function($q) use ($request) {
+                    $q->where('branch_id', $request->branch_id);
+                });
+            }
+        }
+        
+        // Apply other filters
         if ($request->filled('student_id')) {
             $query->where('student_id', $request->student_id);
         }
@@ -38,12 +58,6 @@ class GradesController extends Controller
         if ($request->filled('group_id')) {
             $query->whereHas('student', function($q) use ($request) {
                 $q->where('group_id', $request->group_id);
-            });
-        }
-
-        if ($request->filled('branch_id')) {
-            $query->whereHas('student.group', function($q) use ($request) {
-                $q->where('branch_id', $request->branch_id);
             });
         }
 
@@ -104,7 +118,7 @@ class GradesController extends Controller
 
         // Calculate type statistics
         $typeStats = [];
-        foreach (['achievement', 'behavior', 'attendance', 'appearance'] as $type) {
+        foreach (['achievement', 'behavior', 'attendance', 'appearance', 'plan_score'] as $type) {
             $typeQuery = $query->clone()->where('grade_type', $type);
             $typeStats[$type] = [
                 'count' => $typeQuery->count(),
@@ -123,26 +137,67 @@ class GradesController extends Controller
 
         // Get filter options
         $branches = Branch::all();
-        $teachers = Teacher::all();
-        $groups = Group::all();
         $students = Student::all();
         $subjects = Subject::all();
+        $teachers = Teacher::all();
+        $groups = Group::all();
+        
+        // If there's only one branch, set it as default
+        $defaultBranch = null;
+        if ($branches->count() === 1) {
+            $defaultBranch = $branches->first();
+        }
 
-        return view('admin.grades.index', compact('grades', 'branches', 'teachers', 'groups', 'students', 'subjects', 'stats'));
+        return view('admin.grades.index', compact('grades', 'students', 'subjects', 'teachers', 'stats', 'branches', 'defaultBranch', 'groups'));
     }
 
     /**
      * Show the form for creating a new grade.
      */
-    public function create()
+    public function create(Request $request)
     {
-        $students = Student::all();
         $groups = Group::all();
         $teachers = Teacher::all();
         $subjects = Subject::all();
-        $preselectedTeacher = auth()->id();
+        if (auth()->user()->hasRole('teacher')) {
+            $preselectedTeacher = auth()->user()->teacher->id;
+        }
+       
+        
+        // التحقق من وجود فرع واحد فقط
+        $branches = Branch::all();
+        $defaultBranch = null;
+        if ($branches->count() === 1) {
+            $defaultBranch = $branches->first();
+        }
+        
+        // إذا تم تحديد المجموعة في الرابط، نقوم بتحديد المعلم والمادة المرتبطين بها
+        $preselectedGroup = null;
+        $preselectedSubject = null;
+        $preselectedTeacherFromGroup = null;
+        
+        // تحديد الطلاب المعروضين
+        if ($request->has('group_id')) {
+            $preselectedGroup = Group::find($request->group_id);
+            if ($preselectedGroup) {
+                // تحديد المعلم والمادة من المجموعة
+                $preselectedSubject = $preselectedGroup->subject_id;
+                $preselectedTeacherFromGroup = $preselectedGroup->teacher_id;
+                
+                // جلب الطلاب المنتمين لهذه المجموعة فقط
+                $students = Student::where('group_id', $preselectedGroup->id)->get();
+            } else {
+                $students = Student::all();
+            }
+        } else {
+            $students = Student::all();
+        }
 
-        return view('admin.grades.create', compact('students', 'groups', 'teachers', 'subjects', 'preselectedTeacher'));
+        return view('admin.grades.create', compact(
+            'students', 'groups', 'teachers', 'subjects', 
+            'preselectedTeacher', 'defaultBranch', 'preselectedGroup',
+            'preselectedSubject', 'preselectedTeacherFromGroup'
+        ));
     }
 
     /**
@@ -150,20 +205,30 @@ class GradesController extends Controller
      */
     public function store(Request $request)
     {
+        try{
+        // التحقق من وجود فرع واحد فقط
+        $branches = Branch::all();
+        if ($branches->count() === 1) {
+            // إذا كان هناك فرع واحد فقط، نضيفه للطلب
+            $request->merge(['branch_id' => $branches->first()->id]);
+        }
+        
         $request->validate([
             'student_id' => 'required|exists:students,id',
             'subject_id' => 'required|exists:subjects,id',
             'group_id' => 'required|exists:groups,id',
             'teacher_id' => 'required|exists:teachers,id',
+            'branch_id' => ['required', 'exists:branches,id', new \App\Rules\UserBranchRule],
             'date' => 'required|date',
             'grades' => 'required|array',
             'grades.*.grade' => 'nullable|numeric|min:0|max:100',
             'grades.*.verses' => 'nullable|string|max:255',
             'grades.*.notes' => 'nullable|string|max:1000'
         ]);
-
+    
         // Validate unique grade for each type
         foreach ($request->grades as $type => $gradeData) {
+         
             if (!empty($gradeData['grade'])) {
                 $uniqueRule = new UniqueGradeRule(
                     $request->student_id,
@@ -172,7 +237,7 @@ class GradesController extends Controller
                     $request->date,
                     $type
                 );
-
+           
                 $request->validate([
                     "grades.{$type}.grade" => [$uniqueRule]
                 ]);
@@ -194,7 +259,10 @@ class GradesController extends Controller
                 ]);
             }
         }
-
+        }catch(\Exception $e){
+            dd($e);
+            return redirect()->route('admin.grades.index')->with('error', 'حدث خطأ أثناء إضافة التقييمات');
+        }
         return redirect()->route('admin.grades.index')->with('success', 'تم إضافة التقييمات بنجاح');
     }
 
@@ -221,6 +289,13 @@ class GradesController extends Controller
         $groups = Group::all();
         $teachers = Teacher::all();
         $subjects = Subject::all();
+        
+        // التحقق من وجود فرع واحد فقط
+        $branches = Branch::all();
+        $defaultBranch = null;
+        if ($branches->count() === 1) {
+            $defaultBranch = $branches->first();
+        }
 
         // Get all grades for this student on the same date
         $allGrades = Grade::where('student_id', $grade->student_id)
@@ -228,7 +303,7 @@ class GradesController extends Controller
                          ->get()
                          ->keyBy('grade_type');
 
-        return view('admin.grades.edit', compact('grade', 'students', 'groups', 'teachers', 'subjects', 'allGrades'));
+        return view('admin.grades.edit', compact('grade', 'students', 'groups', 'teachers', 'subjects', 'allGrades', 'defaultBranch'));
     }
 
     /**
@@ -236,11 +311,19 @@ class GradesController extends Controller
      */
     public function update(Request $request, Grade $grade)
     {
+        // التحقق من وجود فرع واحد فقط
+        $branches = Branch::all();
+        if ($branches->count() === 1) {
+            // إذا كان هناك فرع واحد فقط، نضيفه للطلب
+            $request->merge(['branch_id' => $branches->first()->id]);
+        }
+        
         $request->validate([
             'student_id' => 'required|exists:students,id',
             'subject_id' => 'required|exists:subjects,id',
             'group_id' => 'required|exists:groups,id',
             'teacher_id' => 'required|exists:teachers,id',
+            'branch_id' => ['required', 'exists:branches,id', new \App\Rules\UserBranchRule],
             'date' => 'required|date',
             'grades' => 'required|array',
             'grades.*.grade' => 'nullable|numeric|min:0|max:100',
@@ -252,10 +335,12 @@ class GradesController extends Controller
                              ->whereDate('date', $grade->date)
                              ->get()
                              ->keyBy('grade_type');
-
+                          
         // Update or create grades for each type
         foreach ($request->grades as $type => $gradeData) {
             if (isset($gradeData['grade']) && $gradeData['grade'] !== '') {
+                
+            
                 $gradeModel = $existingGrades[$type] ?? new Grade([
                     'student_id' => $request->student_id,
                     'group_id' => $request->group_id,
@@ -264,10 +349,11 @@ class GradesController extends Controller
                     'grade_type' => $type,
                     'date' => $request->date
                 ]);
-
+               
                 $gradeModel->grade = $gradeData['grade'];
                 $gradeModel->notes = $gradeData['notes'] ?? null;
                 $gradeModel->save();
+               
             }
         }
 

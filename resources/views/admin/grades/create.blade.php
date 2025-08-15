@@ -32,6 +32,14 @@
         <div class="card-body">
             <form action="{{ route('admin.grades.store') }}" method="POST">
                 @csrf
+                
+                @if(isset($defaultBranch))
+                <!-- حقل مخفي للفرع عندما يكون هناك فرع واحد فقط -->
+                <input type="hidden" name="branch_id" value="{{ $defaultBranch->id }}">
+                <div class="alert alert-info mb-3">
+                    تم تحديد الفرع تلقائياً: <strong>{{ $defaultBranch->name }}</strong>
+                </div>
+                @endif
 
                 <!-- Student Selection -->
                 <div class="mb-3">
@@ -54,14 +62,22 @@
                 <!-- Group Selection -->
                 <div class="mb-3">
                     <label for="group_id" class="form-label">المجموعة</label>
-                    <select class="form-select" id="group_id" name="group_id" required>
-                        <option value="">اختر المجموعة</option>
-                        @foreach($groups as $group)
-                            <option value="{{ $group->id }}" {{ old('group_id') == $group->id ? 'selected' : '' }}>
-                                {{ $group->name }}
-                            </option>
-                        @endforeach
-                    </select>
+                    @if(isset($preselectedGroup))
+                        <input type="hidden" name="group_id" value="{{ $preselectedGroup->id }}">
+                        <select class="form-select" id="group_id" disabled>
+                            <option value="{{ $preselectedGroup->id }}" selected>{{ $preselectedGroup->name }}</option>
+                        </select>
+                        <small class="form-text text-muted">تم تحديد المجموعة تلقائيًا من الرابط</small>
+                    @else
+                        <select class="form-select" id="group_id" name="group_id" required>
+                            <option value="">اختر المجموعة</option>
+                            @foreach($groups as $group)
+                                <option value="{{ $group->id }}" {{ old('group_id') == $group->id ? 'selected' : '' }}>
+                                    {{ $group->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    @endif
                     @error('group_id')
                         <div class="text-danger">{{ $message }}</div>
                     @enderror
@@ -70,33 +86,58 @@
                 <!-- Teacher Selection -->
                 <div class="mb-3">
                     <label for="teacher_id" class="form-label">المعلم</label>
-                    <select class="form-select" id="teacher_id" name="teacher_id" required {{ isset($preselectedTeacher) ? 'readonly' : '' }}>
-                        <option value="">اختر المعلم</option>
-                        @foreach($teachers as $teacher)
-                            <option value="{{ $teacher->id }}" {{ old('teacher_id', $preselectedTeacher) == $teacher->id ? 'selected' : '' }}>
-                                {{ $teacher->name }}
+                    @if(isset($preselectedTeacherFromGroup))
+                        <input type="hidden" name="teacher_id" value="{{ $preselectedTeacherFromGroup }}">
+                        <select class="form-select" id="teacher_id" disabled>
+                            <option value="{{ $preselectedTeacherFromGroup }}" selected>
+                                {{ $teachers->find($preselectedTeacherFromGroup)->name ?? 'المعلم المحدد' }}
                             </option>
-                        @endforeach
-                    </select>
+                        </select>
+                        <small class="form-text text-muted">تم تحديد المعلم تلقائيًا بناءً على المجموعة المختارة</small>
+                    @elseif(isset($preselectedTeacher))
+                        <input type="hidden" name="teacher_id" value="{{ $preselectedTeacher }}">
+                        <select class="form-select" id="teacher_id" disabled>
+                            <option value="{{ $preselectedTeacher }}" selected>
+                                {{ $teachers->find($preselectedTeacher)->name ?? 'المعلم المحدد' }}
+                            </option>
+                        </select>
+                        <small class="form-text text-muted">تم تحديد المعلم تلقائيًا بناءً على حسابك</small>
+                    @else
+                        <select class="form-select" id="teacher_id" name="teacher_id" required>
+                            <option value="">اختر المعلم</option>
+                            @foreach($teachers as $teacher)
+                                <option value="{{ $teacher->id }}" {{ old('teacher_id') == $teacher->id ? 'selected' : '' }}>
+                                    {{ $teacher->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    @endif
                     @error('teacher_id')
                         <div class="text-danger">{{ $message }}</div>
                     @enderror
-                    @if(isset($preselectedTeacher))
-                        <small class="form-text text-muted">تم تحديد المعلم تلقائيًا بناءً على حسابك</small>
-                    @endif
                 </div>
 
                 <!-- Subject Selection -->
                 <div class="mb-3">
                     <label for="subject_id" class="form-label">المادة</label>
-                    <select class="form-select" id="subject_id" name="subject_id" required>
-                        <option value="">اختر المادة</option>
-                        @foreach($subjects as $subject)
-                            <option value="{{ $subject->id }}" {{ old('subject_id') == $subject->id ? 'selected' : '' }}>
-                                {{ $subject->name }}
+                    @if(isset($preselectedSubject))
+                        <input type="hidden" name="subject_id" value="{{ $preselectedSubject }}">
+                        <select class="form-select" id="subject_id" disabled>
+                            <option value="{{ $preselectedSubject }}" selected>
+                                {{ $subjects->find($preselectedSubject)->name ?? 'المادة المحددة' }}
                             </option>
-                        @endforeach
-                    </select>
+                        </select>
+                        <small class="form-text text-muted">تم تحديد المادة تلقائيًا بناءً على المجموعة المختارة</small>
+                    @else
+                        <select class="form-select" id="subject_id" name="subject_id" required>
+                            <option value="">اختر المادة</option>
+                            @foreach($subjects as $subject)
+                                <option value="{{ $subject->id }}" {{ old('subject_id') == $subject->id ? 'selected' : '' }}>
+                                    {{ $subject->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    @endif
                     @error('subject_id')
                         <div class="text-danger">{{ $message }}</div>
                     @enderror
@@ -116,7 +157,7 @@
                 <!-- Grade Types -->
                 <div class="row">
                     <!-- Achievement -->
-                    <div class="col-md-6 mb-4">
+                    <div class="col-md-2 mb-4">
                         <div class="card h-100">
                             <div class="card-header bg-primary text-white">
                                 <h5 class="card-title mb-0">تقييم الإنجاز</h5>
@@ -135,7 +176,7 @@
                     </div>
 
                     <!-- Behavior -->
-                    <div class="col-md-6 mb-4">
+                    <div class="col-md-2 mb-4">
                         <div class="card h-100">
                             <div class="card-header bg-success text-white">
                                 <h5 class="card-title mb-0">تقييم السلوك</h5>
@@ -154,7 +195,7 @@
                     </div>
 
                     <!-- Attendance -->
-                    <div class="col-md-6 mb-4">
+                    <div class="col-md-2 mb-4">
                         <div class="card h-100">
                             <div class="card-header bg-info text-white">
                                 <h5 class="card-title mb-0">تقييم الحضور</h5>
@@ -173,7 +214,7 @@
                     </div>
 
                     <!-- Appearance -->
-                    <div class="col-md-6 mb-4">
+                    <div class="col-md-2 mb-4">
                         <div class="card h-100">
                             <div class="card-header bg-warning">
                                 <h5 class="card-title mb-0">تقييم المظهر</h5>
@@ -190,6 +231,26 @@
                             </div>
                         </div>
                     </div>
+                    
+                    <!-- Plan Score (الإنجاز اليومي من الخطة) -->
+                    <div class="col-md-2 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header bg-purple text-white" style="background-color: #6f42c1;">
+                                <h5 class="card-title mb-0">الإنجاز اليومي من الخطة</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="plan_score_score" class="form-label">الدرجة</label>
+                                    <input type="number" class="form-control" id="plan_score_score" name="grades[plan_score][grade]" min="0" max="100" step="0.5" value="{{ old('grades.plan_score.grade') }}">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="plan_score_notes" class="form-label">ملاحظات</label>
+                                    <textarea class="form-control" id="plan_score_notes" name="grades[plan_score][notes]" rows="2">{{ old('grades.plan_score.notes') }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                
                 </div>
 
                 <div class="d-flex justify-content-end mt-4">
@@ -207,16 +268,62 @@
 document.addEventListener('DOMContentLoaded', function() {
     const studentSelect = document.getElementById('student_id');
     const groupSelect = document.getElementById('group_id');
-
-    // Update group when student changes
-    studentSelect.addEventListener('change', function() {
-        const selectedOption = this.options[this.selectedIndex];
-        const groupId = selectedOption.dataset.groupId;
-        
-        if (groupId) {
-            groupSelect.value = groupId;
+    
+    // Solo aplicar la lógica si los elementos no están deshabilitados
+    if (studentSelect && groupSelect && !groupSelect.disabled) {
+        // Función para filtrar estudiantes por grupo seleccionado
+        function filterStudentsByGroup(groupId) {
+            // Ocultar todos los estudiantes primero
+            for (let i = 0; i < studentSelect.options.length; i++) {
+                const option = studentSelect.options[i];
+                const studentGroupId = option.dataset.groupId;
+                
+                // Si el estudiante pertenece al grupo seleccionado o no hay grupo seleccionado, mostrar
+                if (!groupId || studentGroupId == groupId || i === 0) { // Siempre mostrar la opción "Seleccionar estudiante"
+                    option.style.display = '';
+                } else {
+                    option.style.display = 'none';
+                }
+            }
         }
-    });
+        
+        // Si hay un grupo seleccionado, filtrar estudiantes
+        if (groupSelect.value) {
+            filterStudentsByGroup(groupSelect.value);
+        }
+
+        // Update group when student changes
+        studentSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const groupId = selectedOption.dataset.groupId;
+            
+            if (groupId) {
+                groupSelect.value = groupId;
+            }
+        });
+        
+        // Filtrar estudiantes cuando cambia el grupo
+        groupSelect.addEventListener('change', function() {
+            filterStudentsByGroup(this.value);
+        });
+    }
+    
+    // Si hay un grupo preseleccionado, mostrar solo los estudiantes de ese grupo
+    if (groupSelect && groupSelect.disabled && studentSelect) {
+        const groupId = document.querySelector('input[name="group_id"]').value;
+        
+        // Filtrar estudiantes para mostrar solo los del grupo preseleccionado
+        for (let i = 0; i < studentSelect.options.length; i++) {
+            const option = studentSelect.options[i];
+            const studentGroupId = option.dataset.groupId;
+            
+            if (!studentGroupId || studentGroupId == groupId || i === 0) {
+                option.style.display = '';
+            } else {
+                option.style.display = 'none';
+            }
+        }
+    }
 });
 </script>
 @endpush

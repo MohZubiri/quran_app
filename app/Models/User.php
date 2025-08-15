@@ -11,6 +11,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
+use DB;
+use App\Models\Teacher;
 class User extends Authenticatable
 {
     use HasFactory, Notifiable, HasRoles;
@@ -77,6 +79,34 @@ class User extends Authenticatable
         return $this->belongsTo(Branch::class);
     }
 
+    public function getTeacher()
+    {
+      return  Teacher::where('user_id', $this->id)->first();
+    }
+
+    public function checkGroup()
+    {
+       
+        if($this->isTeacher() )
+        {
+            if($this->getGroup())
+            {
+                return true;
+            }
+            return false;
+        }
+        
+        return true;
+    }
+    public function getGroup()
+    {
+      $group=  DB::Table('groups')->join('teachers', 'groups.teacher_id', '=', 'teachers.id')
+        ->where('teachers.user_id', $this->id)->select('groups.*')->first();
+       
+        return $group;
+    }
+    
+    
     /**
      * Get all branches accessible to the user.
      * For admin users, this returns all branches.
@@ -345,7 +375,7 @@ class User extends Authenticatable
      */
     public function isAdmin(): bool
     {
-        return $this->role === 'admin';
+        return $this->roles->first()->name === 'admin';
     }
 
     /**
@@ -356,7 +386,7 @@ class User extends Authenticatable
     public function isTeacher(): bool
     {
        
-        return $this->role === 'teacher';
+        return $this->roles->first()->name === 'teacher';
     }
 
     /**
@@ -366,6 +396,6 @@ class User extends Authenticatable
      */
     public function isStudent(): bool
     {
-        return $this->role === 'student';
+        return $this->roles->first()->name === 'student';
     }
 }

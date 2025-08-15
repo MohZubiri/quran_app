@@ -51,8 +51,14 @@ class StudentController extends AdminController
         $branches = Branch::all();
         $teachers = Teacher::all();
         $groups = Group::all();
+        
+        // إذا كان هناك فرع واحد فقط، سيتم تعيينه تلقائياً
+        $defaultBranch = null;
+        if ($branches->count() === 1) {
+            $defaultBranch = $branches->first();
+        }
 
-        return view('admin.students.create', compact('branches', 'teachers', 'groups'));
+        return view('admin.students.create', compact('branches', 'teachers', 'groups', 'defaultBranch'));
     }
 
     /**
@@ -61,6 +67,14 @@ class StudentController extends AdminController
     public function store(Request $request)
     {
         try {
+            // Get all branches
+            $branches = Branch::all();
+            
+            // If there's only one branch, ensure it's used
+            if ($branches->count() === 1) {
+                $request->merge(['branch_id' => $branches->first()->id]);
+            }
+            
             $validated = $request->validate([
                 'name' => ['required', 'string', 'max:255'],
                 'email' => ['nullable', 'string', 'email', 'max:255', 'unique:students'],
@@ -115,7 +129,14 @@ class StudentController extends AdminController
     {
         $branches = Branch::all();
         $groups = Group::all();
-        return view('admin.students.edit', compact('student', 'branches', 'groups'));
+        
+        // إذا كان هناك فرع واحد فقط، سيتم تعيينه تلقائياً
+        $defaultBranch = null;
+        if ($branches->count() === 1) {
+            $defaultBranch = $branches->first();
+        }
+        
+        return view('admin.students.edit', compact('student', 'branches', 'groups', 'defaultBranch'));
     }
 
     /**
@@ -127,6 +148,14 @@ class StudentController extends AdminController
             $student = Student::whereHas('branch', function ($query) {
                 $query->where('user_id', auth()->id());
             })->findOrFail($id);
+            
+            // Get all branches
+            $branches = Branch::all();
+            
+            // If there's only one branch, ensure it's used
+            if ($branches->count() === 1) {
+                $request->merge(['branch_id' => $branches->first()->id]);
+            }
 
             $validated = $request->validate([
                 'name' => ['required', 'string', 'max:255'],

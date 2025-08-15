@@ -27,12 +27,22 @@
             <div class="row mb-3">
                 <div class="col-md-4">
                     <label for="branch_id" class="form-label">الفرع <span class="text-danger">*</span></label>
-                    <select class="form-select @error('branch_id') is-invalid @enderror" id="branch_id" name="branch_id" required>
-                        <option value="">-- اختر الفرع --</option>
-                        @foreach($branches as $branch)
-                            <option value="{{ $branch->id }}" {{ old('branch_id', request('branch_id')) == $branch->id ? 'selected' : '' }}>{{ $branch->name }}</option>
-                        @endforeach
-                    </select>
+                    @if(!isset($defaultBranch) || !$defaultBranch)
+                        <select class="form-select @error('branch_id') is-invalid @enderror" id="branch_id" name="branch_id" required>
+                            <option value="">-- اختر الفرع --</option>
+                            @foreach($branches as $branch)
+                                <option value="{{ $branch->id }}" {{ old('branch_id', request('branch_id')) == $branch->id ? 'selected' : '' }}>{{ $branch->name }}</option>
+                            @endforeach
+                        </select>
+                    @else
+                        <select class="form-select" id="branch_id" disabled>
+                            <option value="{{ $defaultBranch->id }}" selected>{{ $defaultBranch->name }}</option>
+                        </select>
+                        <input type="hidden" name="branch_id" value="{{ $defaultBranch->id }}">
+                        <div class="alert alert-info mt-2 mb-0">
+                            <i class="fas fa-info-circle"></i> تم تحديد الفرع تلقائياً: {{ $defaultBranch->name }}
+                        </div>
+                    @endif
                     @error('branch_id')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -40,15 +50,25 @@
                 
                 <div class="col-md-4">
                     <label for="group_id" class="form-label">الحلقة <span class="text-danger">*</span></label>
-                    <select class="form-select @error('group_id') is-invalid @enderror" id="group_id" name="group_id" required>
-                        <option value="">-- اختر الحلقة --</option>
-                        @foreach($groups as $group)
-                            <option value="{{ $group->id }}" {{ old('group_id', request('group_id')) == $group->id ? 'selected' : '' }}>{{ $group->name }}</option>
-                        @endforeach
-                    </select>
-                    @error('group_id')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
+                    @if(isset($selectedGroup))
+                        <select class="form-select" id="group_id" disabled>
+                            <option value="{{ $selectedGroup->id }}" selected>{{ $selectedGroup->name }}</option>
+                        </select>
+                        <input type="hidden" name="group_id" value="{{ $selectedGroup->id }}">
+                        <div class="alert alert-info mt-2 mb-0">
+                            <i class="fas fa-info-circle"></i> تم تحديد الحلقة تلقائياً: {{ $selectedGroup->name }}
+                        </div>
+                    @else
+                        <select class="form-select @error('group_id') is-invalid @enderror" id="group_id" name="group_id" required>
+                            <option value="">-- اختر الحلقة --</option>
+                            @foreach($groups as $group)
+                                <option value="{{ $group->id }}" {{ old('group_id', request('group_id')) == $group->id ? 'selected' : '' }}>{{ $group->name }}</option>
+                            @endforeach
+                        </select>
+                        @error('group_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    @endif
                 </div>
                 
                 <div class="col-md-4">
@@ -103,15 +123,28 @@
             
             <div class="mb-3">
                 <label for="teacher_id" class="form-label">المعلم المسؤول <span class="text-danger">*</span></label>
-                <select class="form-select @error('teacher_id') is-invalid @enderror" id="teacher_id" name="teacher_id" required>
-                    <option value="">-- اختر المعلم --</option>
-                    @foreach($teachers as $teacher)
-                        <option value="{{ $teacher->id }}" {{ old('teacher_id') == $teacher->id ? 'selected' : '' }}>{{ $teacher->name }} {{ $teacher->last_name }}</option>
-                    @endforeach
-                </select>
-                @error('teacher_id')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
+                @if(isset($selectedTeacher))
+                    @php
+                        $teacherData = $teachers->where('id', $selectedTeacher)->first();
+                    @endphp
+                    <select class="form-select" id="teacher_id" disabled>
+                        <option value="{{ $selectedTeacher }}" selected>{{ $teacherData ? $teacherData->name . ' ' . $teacherData->last_name : '' }}</option>
+                    </select>
+                    <input type="hidden" name="teacher_id" value="{{ $selectedTeacher }}">
+                    <div class="alert alert-info mt-2 mb-0">
+                        <i class="fas fa-info-circle"></i> تم تحديد المعلم تلقائياً بناءً على الحلقة المختارة
+                    </div>
+                @else
+                    <select class="form-select @error('teacher_id') is-invalid @enderror" id="teacher_id" name="teacher_id" required>
+                        <option value="">-- اختر المعلم --</option>
+                        @foreach($teachers as $teacher)
+                            <option value="{{ $teacher->id }}" {{ old('teacher_id') == $teacher->id ? 'selected' : '' }}>{{ $teacher->name }} {{ $teacher->last_name }}</option>
+                        @endforeach
+                    </select>
+                    @error('teacher_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                @endif
             </div>
             
             <div class="d-flex justify-content-end">

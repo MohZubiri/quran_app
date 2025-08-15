@@ -32,12 +32,22 @@
             <div class="row g-3">
                 <div class="col-md-3">
                     <label for="branch_id" class="form-label">الفرع</label>
-                    <select class="form-select" id="branch_id" name="branch_id" required>
-                        <option value="">جميع الفروع</option>
-                        @foreach($branches as $branch)
-                            <option value="{{ $branch->id }}" {{ request('branch_id') == $branch->id ? 'selected' : '' }}>{{ $branch->name }}</option>
-                        @endforeach
-                    </select>
+                    @if(!isset($defaultBranch) || !$defaultBranch)
+                        <select class="form-select" id="branch_id" name="branch_id" required>
+                            <option value="">جميع الفروع</option>
+                            @foreach($branches as $branch)
+                                <option value="{{ $branch->id }}" {{ request('branch_id') == $branch->id ? 'selected' : '' }}>{{ $branch->name }}</option>
+                            @endforeach
+                        </select>
+                    @else
+                        <select class="form-select" id="branch_id" disabled>
+                            <option value="{{ $defaultBranch->id }}" selected>{{ $defaultBranch->name }}</option>
+                        </select>
+                        <input type="hidden" name="branch_id" value="{{ $defaultBranch->id }}">
+                        <div class="alert alert-info mt-2">
+                            <i class="fas fa-info-circle"></i> تم تحديد الفرع تلقائياً: {{ $defaultBranch->name }}
+                        </div>
+                    @endif
                 </div>
                 
                 <div class="col-md-3">
@@ -124,19 +134,19 @@
                         <td>
                             @can('view-groups')
                             <a href="{{ route('admin.groups.show', $record->group_id) }}">
-                                {{ $record->group->name }}
+                                {{ $record->student->group->name }}
                             </a>
                             @else
-                                {{ $record->group->name }}
+                                {{ $record->student->group->name }}
                             @endcan
                         </td>
                         <td>
                             @can('view-teachers')
                             <a href="{{ route('admin.teachers.show', $record->teacher_id) }}">
-                                {{ $record->teacher->name }}
+                                {{ $record->student->group->teacher->name }}
                             </a>
                             @else
-                                {{ $record->teacher->name }}
+                                {{ $record->student->group->teacher->name }}
                             @endcan
                         </td>
                         <td>

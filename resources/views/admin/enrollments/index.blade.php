@@ -19,14 +19,21 @@
             <form action="{{ route('admin.enrollments.index') }}" method="GET" class="row g-3">
                 <div class="col-md-3">
                     <label for="branch_id" class="form-label">الفرع</label>
-                    <select class="form-select" id="branch_id" name="branch_id">
-                        <option value="">كل الفروع</option>
-                        @foreach($branches as $branch)
-                            <option value="{{ $branch->id }}" {{ request('branch_id') == $branch->id ? 'selected' : '' }}>
-                                {{ $branch->name }}
-                            </option>
-                        @endforeach
+                    <select class="form-select" id="branch_id" name="branch_id" {{ $defaultBranch ? 'disabled' : '' }}>
+                        @if(!$defaultBranch)
+                            <option value="">كل الفروع</option>
+                            @foreach($branches as $branch)
+                                <option value="{{ $branch->id }}" {{ request('branch_id') == $branch->id ? 'selected' : '' }}>
+                                    {{ $branch->name }}
+                                </option>
+                            @endforeach
+                        @else
+                            <option value="{{ $defaultBranch->id }}" selected>{{ $defaultBranch->name }}</option>
+                        @endif
                     </select>
+                    @if($defaultBranch)
+                        <input type="hidden" name="branch_id" value="{{ $defaultBranch->id }}">
+                    @endif
                 </div>
                 
                 <div class="col-md-3">

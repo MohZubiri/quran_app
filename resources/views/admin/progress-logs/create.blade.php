@@ -20,17 +20,24 @@
             <div class="row mb-3">
                 <div class="col-md-6">
                     <label for="branch_id" class="form-label">الفرع <span class="text-danger">*</span></label>
-                    <select class="form-select @error('branch_id') is-invalid @enderror" id="branch_id" name="branch_id" required>
-                        <option value="">-- اختر الفرع --</option>
-                        @foreach($branches as $branch)
-                            <option value="{{ $branch->id }}" {{ old('branch_id') == $branch->id ? 'selected' : '' }}>
-                                {{ $branch->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('branch_id')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
+                    @if(isset($defaultBranch))
+                        <div class="alert alert-info">
+                            تم تحديد الفرع تلقائياً: {{ $defaultBranch->name }}
+                        </div>
+                        <input type="hidden" name="branch_id" value="{{ $defaultBranch->id }}">
+                    @else
+                        <select class="form-select @error('branch_id') is-invalid @enderror" id="branch_id" name="branch_id" required>
+                            <option value="">-- اختر الفرع --</option>
+                            @foreach($branches as $branch)
+                                <option value="{{ $branch->id }}" {{ old('branch_id') == $branch->id ? 'selected' : '' }}>
+                                    {{ $branch->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('branch_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    @endif
                 </div>
 
                 <div class="col-md-6">

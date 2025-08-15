@@ -167,6 +167,8 @@
                                 <th>تاريخ التسجيل</th>
                                 <th>نسبة الحضور</th>
                                 <th>متوسط الدرجات</th>
+                                <th>الخطة الشهرية</th>
+                                <th>الانجاز اليومي</th>
                                 <th>الحالة</th>
                                 <th>الإجراءات</th>
                             </tr>
@@ -208,6 +210,14 @@
                                         {{ $avgScore }}
                                     </span>
                                 </td>
+                                <td>
+                                    
+                                    {{$group->studyPlan->lessons_count??'غير محدد'}} صفحة او درس
+                                </td>
+                                <td>
+                                    {{$group->studyPlan->min_performance??'غير محدد'}} صفحة او درس
+                                </td>
+                               
                                 <td>
                                     @if($enrollment->status == 'active')
                                         <span class="badge bg-success">نشط</span>

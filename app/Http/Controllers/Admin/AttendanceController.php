@@ -31,6 +31,16 @@ class AttendanceController extends AdminController
         // Start with a base query
         $query = Attendance::with(['student.group.branch', 'student.group.teacher']);
 
+        // التحقق من وجود فرع واحد فقط
+        $branches = Branch::all();
+        $defaultBranch = null;
+        
+        if ($branches->count() === 1) {
+            // إذا كان هناك فرع واحد فقط، نضيفه للطلب تلقائياً
+            $defaultBranch = $branches->first();
+            $request->merge(['branch_id' => $defaultBranch->id]);
+        }
+
         // Apply filters based on request parameters
         if ($request->filled('branch_id')) {
             $query->whereHas('student.group', function($q) use ($request) {
@@ -57,7 +67,7 @@ class AttendanceController extends AdminController
         if ($request->filled('date_to')) {
             $query->whereDate('date', '<=', $request->date_to);
         }
-
+     
         // Get the filtered attendance records
         $attendance = $query->latest('date')->paginate(15)->withQueryString();
 
@@ -88,18 +98,17 @@ class AttendanceController extends AdminController
         ];
 
         // Get data for filters (will be automatically filtered by Global Scopes)
-        $branches = Branch::all();
         $teachers = Teacher::all();
         $groups = Group::all();
         $students = Student::all();
-                               
-        return view('admin.attendance.index', compact('attendance', 'branches', 'teachers', 'groups', 'students', 'stats'));
+                            
+        return view('admin.attendance.index', compact('attendance', 'branches', 'teachers', 'groups', 'students', 'stats', 'defaultBranch'));
     }
 
     /**
      * Show the form for creating a new attendance record.
      */
-    public function create()
+    public function create(Request $request)
     {
         // بيانات النموذج (ستتم تصفيتها تلقائياً بواسطة Global Scopes)
         $branches = Branch::all();
@@ -113,7 +122,23 @@ class AttendanceController extends AdminController
             $preselectedTeacher = auth()->user()->teacher->id;
         }
 
-        return view('admin.attendance.create', compact('branches', 'teachers', 'groups', 'students', 'preselectedTeacher'));
+        // التحقق من وجود فرع واحد فقط
+        $defaultBranch = null;
+        if ($branches->count() === 1) {
+            $defaultBranch = $branches->first();
+        }
+
+        // إذا تم تمرير معرف الحلقة في الرابط، نقوم بتحديد المعلم تلقائياً
+        $selectedGroup = null;
+        $selectedTeacher = null;
+        if ($request->has('group_id')) {
+            $selectedGroup = Group::find($request->group_id);
+            if ($selectedGroup) {
+                $selectedTeacher = $selectedGroup->teacher_id;
+            }
+        }
+
+        return view('admin.attendance.create', compact('branches', 'teachers', 'groups', 'students', 'preselectedTeacher', 'defaultBranch', 'selectedGroup', 'selectedTeacher'));
     }
 
     /**
@@ -121,8 +146,15 @@ class AttendanceController extends AdminController
      */
     public function store(Request $request)
     {
+        // التحقق من وجود فرع واحد فقط
+        $branches = Branch::all();
+        if ($branches->count() === 1) {
+            // إذا كان هناك فرع واحد فقط، نضيفه للطلب
+            $request->merge(['branch_id' => $branches->first()->id]);
+        }
+        
         $validated = $request->validate([
-            'branch_id' => 'required|exists:branches,id',
+            'branch_id' => ['required', 'exists:branches,id', new \App\Rules\UserBranchRule],
             'group_id' => 'required|exists:groups,id',
             'teacher_id' => 'required|exists:teachers,id',
             'date' => 'required|date',

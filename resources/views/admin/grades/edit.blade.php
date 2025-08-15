@@ -20,6 +20,14 @@
             @csrf
             @method('PUT')
             
+            @if(isset($defaultBranch))
+            <!-- حقل مخفي للفرع عندما يكون هناك فرع واحد فقط -->
+            <input type="hidden" name="branch_id" value="{{ $defaultBranch->id }}">
+            <div class="alert alert-info mb-3">
+                تم تحديد الفرع تلقائياً: <strong>{{ $defaultBranch->name }}</strong>
+            </div>
+            @endif
+            
             <!-- Student Selection -->
             <div class="mb-3">
                 <label for="student_id" class="form-label">الطالب <span class="text-danger">*</span></label>
@@ -166,6 +174,25 @@
                             <div class="mb-3">
                                 <label for="appearance_notes" class="form-label">ملاحظات</label>
                                 <textarea class="form-control" id="appearance_notes" name="grades[appearance][notes]" rows="2">{{ isset($allGrades['appearance']) ? $allGrades['appearance']->notes : old('grades.appearance.notes') }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Plan Score (الإنجاز اليومي من الخطة) -->
+                <div class="col-md-6 mb-3">
+                    <div class="card h-100">
+                        <div class="card-header" style="background-color: #6f42c1; color: white;">
+                            <h6 class="card-title mb-0">الإنجاز اليومي من الخطة</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="plan_score_score" class="form-label">الدرجة</label>
+                                <input type="number" class="form-control" id="plan_score_score" name="grades[plan_score][grade]" min="0" max="100" step="0.5" value="{{ isset($allGrades['plan_score']) ? $allGrades['plan_score']->grade : old('grades.plan_score.grade') }}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="plan_score_notes" class="form-label">ملاحظات</label>
+                                <textarea class="form-control" id="plan_score_notes" name="grades[plan_score][notes]" rows="2">{{ isset($allGrades['plan_score']) ? $allGrades['plan_score']->notes : old('grades.plan_score.notes') }}</textarea>
                             </div>
                         </div>
                     </div>

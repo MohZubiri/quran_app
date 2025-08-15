@@ -56,8 +56,14 @@ class ProgressLogController extends AdminController
         if (auth()->user()->hasRole('teacher')) {
             $preselectedTeacher = auth()->user()->teacher->id;
         }
+        
+        // التحقق من وجود فرع واحد فقط
+        $defaultBranch = null;
+        if ($branches->count() === 1) {
+            $defaultBranch = $branches->first();
+        }
 
-        return view('admin.progress-logs.create', compact('branches', 'teachers', 'groups', 'students', 'preselectedTeacher'));
+        return view('admin.progress-logs.create', compact('branches', 'teachers', 'groups', 'students', 'preselectedTeacher', 'defaultBranch'));
     }
 
     /**
@@ -65,9 +71,17 @@ class ProgressLogController extends AdminController
      */
     public function store(Request $request)
     {
+        // التحقق من وجود فرع واحد فقط
+        $branches = Branch::all();
+        if ($branches->count() === 1) {
+            // إذا كان هناك فرع واحد فقط، نضيفه للطلب
+            $request->merge(['branch_id' => $branches->first()->id]);
+        }
+        
         $validated = $request->validate([
             'student_id' => 'required|exists:students,id',
             'group_id' => 'required|exists:groups,id',
+            'branch_id' => ['required', 'exists:branches,id', new \App\Rules\UserBranchRule],
             'date' => 'required|date',
             'surah_name' => 'required|string|max:50',
             'from_verse' => 'required|integer|min:1',
@@ -126,7 +140,15 @@ class ProgressLogController extends AdminController
             $query->where('status', 'active');
         })->get();
         $groups = Group::all();
-        return view('admin.progress-logs.edit', compact('progressLog', 'students', 'groups'));
+        $branches = Branch::all();
+        
+        // التحقق من وجود فرع واحد فقط
+        $defaultBranch = null;
+        if ($branches->count() === 1) {
+            $defaultBranch = $branches->first();
+        }
+        
+        return view('admin.progress-logs.edit', compact('progressLog', 'students', 'groups', 'branches', 'defaultBranch'));
     }
 
     /**
@@ -134,9 +156,17 @@ class ProgressLogController extends AdminController
      */
     public function update(Request $request, ProgressLog $progressLog)
     {
+        // التحقق من وجود فرع واحد فقط
+        $branches = Branch::all();
+        if ($branches->count() === 1) {
+            // إذا كان هناك فرع واحد فقط، نضيفه للطلب
+            $request->merge(['branch_id' => $branches->first()->id]);
+        }
+        
         $validated = $request->validate([
             'student_id' => 'required|exists:students,id',
             'group_id' => 'required|exists:groups,id',
+            'branch_id' => ['required', 'exists:branches,id', new \App\Rules\UserBranchRule],
             'date' => 'required|date',
             'surah_name' => 'required|string|max:50',
             'from_verse' => 'required|integer|min:1',

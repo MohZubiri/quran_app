@@ -38,7 +38,14 @@ class SubjectController extends AdminController
     public function create()
     {
         $branches = Branch::all();
-        return view('admin.subjects.create', compact('branches'));
+        
+        // التحقق من وجود فرع واحد فقط
+        $defaultBranch = null;
+        if ($branches->count() === 1) {
+            $defaultBranch = $branches->first();
+        }
+        
+        return view('admin.subjects.create', compact('branches', 'defaultBranch'));
     }
 
     /**
@@ -46,13 +53,20 @@ class SubjectController extends AdminController
      */
     public function store(Request $request)
     {
+        // التحقق من وجود فرع واحد فقط
+        $branches = Branch::all();
+        if ($branches->count() === 1) {
+            // إذا كان هناك فرع واحد فقط، نضيفه للطلب
+            $request->merge(['branch_id' => $branches->first()->id]);
+        }
+        
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string|max:1000',
             'level' => 'required|string|max:50',
             'status' => 'required|in:active,inactive',
          
-            'branch_id' => ['required', new UserBranchRule()],
+            'branch_id' => ['required', 'exists:branches,id', new UserBranchRule()],
         ]);
 
         Subject::create($validated);
@@ -76,7 +90,14 @@ class SubjectController extends AdminController
     public function edit(Subject $subject)
     {   
         $branches = Branch::all();
-        return view('admin.subjects.edit', compact('subject', 'branches'));
+        
+        // التحقق من وجود فرع واحد فقط
+        $defaultBranch = null;
+        if ($branches->count() === 1) {
+            $defaultBranch = $branches->first();
+        }
+        
+        return view('admin.subjects.edit', compact('subject', 'branches', 'defaultBranch'));
     }
 
     /**
@@ -84,6 +105,13 @@ class SubjectController extends AdminController
      */
     public function update(Request $request, Subject $subject)
     {
+        // التحقق من وجود فرع واحد فقط
+        $branches = Branch::all();
+        if ($branches->count() === 1) {
+            // إذا كان هناك فرع واحد فقط، نضيفه للطلب
+            $request->merge(['branch_id' => $branches->first()->id]);
+        }
+        
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string|max:1000',
@@ -92,6 +120,7 @@ class SubjectController extends AdminController
             'prerequisites' => 'nullable|string|max:500',
             'objectives' => 'nullable|string|max:1000',
             'notes' => 'nullable|string|max:1000',
+            'branch_id' => ['required', 'exists:branches,id', new UserBranchRule()],
         ]);
 
         $subject->update($validated);

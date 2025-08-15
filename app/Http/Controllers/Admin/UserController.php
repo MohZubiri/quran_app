@@ -57,7 +57,13 @@ class UserController extends AdminController
             $roles = Role::whereIn('name', ['teacher', 'student', 'supervisor'])->get();
         }
 
-        return view('admin.users.create', compact('branches', 'roles'));
+        // التحقق من وجود فرع واحد فقط
+        $defaultBranch = null;
+        if ($branches->count() === 1) {
+            $defaultBranch = $branches->first();
+        }
+
+        return view('admin.users.create', compact('branches', 'roles', 'defaultBranch'));
     }
 
     /**
@@ -68,13 +74,20 @@ class UserController extends AdminController
      */
     public function store(Request $request)
     {
+        // التحقق من وجود فرع واحد فقط
+        $branches = Branch::all();
+        if ($branches->count() === 1) {
+            // إذا كان هناك فرع واحد فقط، نضيفه للطلب
+            $request->merge(['branch_id' => $branches->first()->id]);
+        }
+        
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'phone' => ['nullable', 'string', 'max:20'],
             'role' => ['required', 'exists:roles,id'],
-            'branch_id' => ['required', new UserBranchRule],
+            'branch_id' => ['required', 'exists:branches,id', new UserBranchRule],
         ]);
 
         $user = User::create([
@@ -122,7 +135,13 @@ class UserController extends AdminController
             $roles = Role::whereIn('name', ['teacher', 'student', 'supervisor'])->get();
         }
 
-        return view('admin.users.edit', compact('user', 'branches', 'roles'));
+        // التحقق من وجود فرع واحد فقط
+        $defaultBranch = null;
+        if ($branches->count() === 1) {
+            $defaultBranch = $branches->first();
+        }
+
+        return view('admin.users.edit', compact('user', 'branches', 'roles', 'defaultBranch'));
     }
 
     /**
@@ -134,11 +153,19 @@ class UserController extends AdminController
      */
     public function update(Request $request, User $user)
     {
+        // التحقق من وجود فرع واحد فقط
+        $branches = Branch::all();
+        if ($branches->count() === 1) {
+            // إذا كان هناك فرع واحد فقط، نضيفه للطلب
+            $request->merge(['branch_id' => $branches->first()->id]);
+        }
+        
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
             'phone' => ['nullable', 'string', 'max:20'],
             'role' => ['required', 'exists:roles,id'],
+            'branch_id' => ['required', 'exists:branches,id', new UserBranchRule],
         ]);
 
         $userData = [
@@ -146,7 +173,6 @@ class UserController extends AdminController
             'email' => $request->email,
             'phone' => $request->phone,
             'branch_id' => $request->branch_id,
-           
         ];
 
         // تحديث كلمة المرور فقط إذا تم إدخالها

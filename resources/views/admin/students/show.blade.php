@@ -374,7 +374,7 @@
     <div class="col-md-6">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="card-title">name</h5>
+                <h5 class="card-title">سجل التقييمات الأخيرة</h5>
                 <a href="{{ route('admin.grades.create', ['student_id' => $student->id]) }}" class="btn btn-sm btn-primary">
                     <i class="fas fa-plus-circle me-1"></i> إضافة تقييم جديد
                 </a>
@@ -402,6 +402,25 @@
                                     <span class="badge {{ $grade->grade >= 90 ? 'bg-success' : ($grade->grade >= 70 ? 'bg-info' : ($grade->grade >= 50 ? 'bg-warning' : 'bg-danger')) }}">
                                         {{ $grade->grade }}
                                     </span>
+                                    <small class="d-block mt-1">
+                                        @if($grade->grade_type == 'memorization')
+                                            <span class="badge bg-primary">حفظ</span>
+                                        @elseif($grade->grade_type == 'tajweed')
+                                            <span class="badge bg-info">تجويد</span>
+                                        @elseif($grade->grade_type == 'recitation')
+                                            <span class="badge bg-success">تلاوة</span>
+                                        @elseif($grade->grade_type == 'behavior')
+                                            <span class="badge bg-warning">سلوك</span>
+                                        @elseif($grade->grade_type == 'achievement')
+                                            <span class="badge bg-primary">الإنجاز</span>
+                                        @elseif($grade->grade_type == 'attendance')
+                                            <span class="badge bg-info">الحضور</span>
+                                        @elseif($grade->grade_type == 'appearance')
+                                            <span class="badge bg-warning">المظهر</span>
+                                        @elseif($grade->grade_type == 'plan_score')
+                                            <span class="badge" style="background-color: #6f42c1;">الإنجاز اليومي</span>
+                                        @endif
+                                    </small>
                                 </td>
                                 <td>{{ Str::limit($grade->notes, 30) ?? 'لا توجد ملاحظات' }}</td>
                             </tr>

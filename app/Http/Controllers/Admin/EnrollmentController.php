@@ -3,11 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Admin\AdminController;
-use Illuminate\Http\Request;
-use App\Models\Enrollment;
 use App\Models\Branch;
+use App\Models\Enrollment;
 use App\Models\Group;
 use App\Models\Student;
+use App\Rules\UserBranchRule;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class EnrollmentController extends AdminController
@@ -34,8 +35,19 @@ class EnrollmentController extends AdminController
             'group.branch'
         ]);
 
-        // Apply filters
-        if (request('branch_id')) {
+        // Get all branches
+        $branches = Branch::all();
+        $defaultBranch = null;
+        
+        // If there's only one branch, use it as the default filter
+        if ($branches->count() === 1) {
+            $defaultBranch = $branches->first();
+            $query->whereHas('group', function($q) use ($defaultBranch) {
+                $q->where('branch_id', $defaultBranch->id);
+            });
+        }
+        // Otherwise, apply branch filter if provided
+        elseif (request('branch_id')) {
             $query->whereHas('group', function($q) {
                 $q->where('branch_id', request('branch_id'));
             });
@@ -78,10 +90,10 @@ class EnrollmentController extends AdminController
             'by_status' => $byStatus
         ];
 
-        $branches = Branch::get();
+        // We already have branches from earlier in the method
         $groups = Group::get();
 
-        return view('admin.enrollments.index', compact('enrollments', 'branches', 'groups', 'stats'));
+        return view('admin.enrollments.index', compact('enrollments', 'branches', 'groups', 'stats', 'defaultBranch'));
     }
 
     /**
@@ -91,7 +103,12 @@ class EnrollmentController extends AdminController
     {
         // Get branches accessible to the current user
         $branches = Branch::get();
-
+        
+        // If there's only one branch, set it as default
+        $defaultBranch = null;
+        if ($branches->count() === 1) {
+            $defaultBranch = $branches->first();
+        }
 
         // Get groups from these branches
         $groups = Group::get();
@@ -102,7 +119,7 @@ class EnrollmentController extends AdminController
             $query->where('status', 'active');
         })->get();
 
-        return view('admin.enrollments.create', compact('branches', 'groups', 'students'));
+        return view('admin.enrollments.create', compact('branches', 'groups', 'students', 'defaultBranch'));
     }
 
     /**
@@ -110,8 +127,16 @@ class EnrollmentController extends AdminController
      */
     public function store(Request $request)
     {
+        // Get all branches
+        $branches = Branch::all();
+        
+        // If there's only one branch, ensure it's used
+        if ($branches->count() === 1) {
+            $request->merge(['branch_id' => $branches->first()->id]);
+        }
+        
         $validated = $request->validate([
-            'branch_id' => ['required', 'exists:branches,id'],
+            'branch_id' => ['required', 'exists:branches,id', new UserBranchRule()],
             'student_id' => ['required', 'exists:students,id'],
             'group_id' => ['required', 'exists:groups,id'],
             'enrollment_date' => ['required', 'date'],
@@ -154,9 +179,14 @@ class EnrollmentController extends AdminController
      */
     public function edit(Enrollment $enrollment)
     {
-
         // الحصول على الفروع المتاحة للمستخدم الحالي
         $branches = Branch::get();
+        
+        // إذا كان هناك فرع واحد فقط، سيتم تعيينه تلقائياً
+        $defaultBranch = null;
+        if ($branches->count() === 1) {
+            $defaultBranch = $branches->first();
+        }
 
         // الحصول على المجموعات من هذه الفروع
         $groups = Group::get();
@@ -164,7 +194,7 @@ class EnrollmentController extends AdminController
         // الحصول على الطالب لهذا التسجيل
         $student = $enrollment->student;
 
-        return view('admin.enrollments.edit', compact('enrollment', 'branches', 'groups', 'student'));
+        return view('admin.enrollments.edit', compact('enrollment', 'branches', 'groups', 'student', 'defaultBranch'));
     }
 
     /**
@@ -172,6 +202,13 @@ class EnrollmentController extends AdminController
      */
     public function update(Request $request, Enrollment $enrollment)
     {
+        // Get all branches
+        $branches = Branch::all();
+        
+        // If there's only one branch, ensure it's used
+        if ($branches->count() === 1) {
+            $request->merge(['branch_id' => $branches->first()->id]);
+        }
 
         $validated = $request->validate([
             'group_id' => [
@@ -184,7 +221,7 @@ class EnrollmentController extends AdminController
                     }
                 }
             ],
-            'branch_id' => ['required', 'exists:branches,id'],
+            'branch_id' => ['required', 'exists:branches,id', new UserBranchRule()],
             'status' => 'required|in:active,inactive',
             'notes' => 'nullable|string|max:500',
         ]);

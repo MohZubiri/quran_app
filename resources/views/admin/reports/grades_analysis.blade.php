@@ -63,6 +63,10 @@
                         <option value="tajweed" {{ request('grade_type') == 'tajweed' ? 'selected' : '' }}>التجويد</option>
                         <option value="recitation" {{ request('grade_type') == 'recitation' ? 'selected' : '' }}>التلاوة</option>
                         <option value="behavior" {{ request('grade_type') == 'behavior' ? 'selected' : '' }}>السلوك</option>
+                        <option value="achievement" {{ request('grade_type') == 'achievement' ? 'selected' : '' }}>الإنجاز</option>
+                        <option value="attendance" {{ request('grade_type') == 'attendance' ? 'selected' : '' }}>الحضور</option>
+                        <option value="appearance" {{ request('grade_type') == 'appearance' ? 'selected' : '' }}>المظهر</option>
+                        <option value="plan_score" {{ request('grade_type') == 'plan_score' ? 'selected' : '' }}>الإنجاز اليومي من الخطة</option>
                     </select>
                 </div>
                 
@@ -178,6 +182,10 @@
                         <th>متوسط التجويد</th>
                         <th>متوسط التلاوة</th>
                         <th>متوسط السلوك</th>
+                        <th>متوسط الإنجاز</th>
+                        <th>متوسط الحضور</th>
+                        <th>متوسط المظهر</th>
+                        <th>متوسط الإنجاز اليومي</th>
                         <th>المتوسط العام</th>
                         <th>الإجراءات</th>
                     </tr>
@@ -216,6 +224,26 @@
                         <td>
                             <span class="badge {{ $group['behavior_avg'] >= 90 ? 'bg-success' : ($group['behavior_avg'] >= 70 ? 'bg-info' : ($group['behavior_avg'] >= 50 ? 'bg-warning' : 'bg-danger')) }}">
                                 {{ $group['behavior_avg'] }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge {{ $group['achievement_avg'] >= 90 ? 'bg-success' : ($group['achievement_avg'] >= 70 ? 'bg-info' : ($group['achievement_avg'] >= 50 ? 'bg-warning' : 'bg-danger')) }}">
+                                {{ $group['achievement_avg'] ?? '-' }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge {{ $group['attendance_avg'] >= 90 ? 'bg-success' : ($group['attendance_avg'] >= 70 ? 'bg-info' : ($group['attendance_avg'] >= 50 ? 'bg-warning' : 'bg-danger')) }}">
+                                {{ $group['attendance_avg'] ?? '-' }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge {{ $group['appearance_avg'] >= 90 ? 'bg-success' : ($group['appearance_avg'] >= 70 ? 'bg-info' : ($group['appearance_avg'] >= 50 ? 'bg-warning' : 'bg-danger')) }}">
+                                {{ $group['appearance_avg'] ?? '-' }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge" style="background-color: {{ $group['plan_score_avg'] >= 90 ? '#198754' : ($group['plan_score_avg'] >= 70 ? '#0dcaf0' : ($group['plan_score_avg'] >= 50 ? '#ffc107' : '#dc3545')) }}">
+                                {{ $group['plan_score_avg'] ?? '-' }}
                             </span>
                         </td>
                         <td>

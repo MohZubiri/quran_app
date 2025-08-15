@@ -24,7 +24,11 @@ class AdminController extends Controller
      * Get the dashboard view
      */
     public function dashboard()
+    
     {
+     
+        if(!Auth::user()->checkGroup())
+            return view('admin.errors.withoutgroup');
         return view('admin.dashboard');
     }
 

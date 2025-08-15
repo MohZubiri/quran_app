@@ -59,8 +59,14 @@ class TeacherController extends AdminController
     {
         // بيانات النموذج (ستتم تصفيتها تلقائياً بواسطة Global Scopes)
         $branches = Branch::all();
+        
+        // التحقق من وجود فرع واحد فقط
+        $defaultBranch = null;
+        if ($branches->count() === 1) {
+            $defaultBranch = $branches->first();
+        }
 
-        return view('admin.teachers.create', compact('branches'));
+        return view('admin.teachers.create', compact('branches', 'defaultBranch'));
     }
 
     /**
@@ -68,6 +74,13 @@ class TeacherController extends AdminController
      */
     public function store(Request $request)
     {
+        // التحقق من وجود فرع واحد فقط
+        $branches = Branch::all();
+        if ($branches->count() === 1) {
+            // إذا كان هناك فرع واحد فقط، نضيفه للطلب
+            $request->merge(['branch_id' => $branches->first()->id]);
+        }
+        
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['nullable', 'string', 'email', 'max:255', 'unique:teachers'],
@@ -77,7 +90,7 @@ class TeacherController extends AdminController
             'join_date' => ['nullable', 'date'],
             'status' => ['required', 'in:active,inactive'],
             'bio' => ['nullable', 'string', 'max:1000'],
-            'branch_id' => ['required', new UserBranchRule()],
+            'branch_id' => ['required', 'exists:branches,id', new UserBranchRule()],
         ]);
 
         Teacher::create($validated);
@@ -126,7 +139,13 @@ class TeacherController extends AdminController
         
         $branches = $this->getUserBranches();
         
-        return view('admin.teachers.edit', compact('teacher', 'branches'));
+        // التحقق من وجود فرع واحد فقط
+        $defaultBranch = null;
+        if ($branches->count() === 1) {
+            $defaultBranch = $branches->first();
+        }
+        
+        return view('admin.teachers.edit', compact('teacher', 'branches', 'defaultBranch'));
     }
 
     /**
@@ -137,6 +156,13 @@ class TeacherController extends AdminController
         $teacher = Teacher::whereHas('branch', function ($query) {
             $query->where('user_id', auth()->id());
         })->findOrFail($id);
+        
+        // التحقق من وجود فرع واحد فقط
+        $branches = Branch::all();
+        if ($branches->count() === 1) {
+            // إذا كان هناك فرع واحد فقط، نضيفه للطلب
+            $request->merge(['branch_id' => $branches->first()->id]);
+        }
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -147,7 +173,7 @@ class TeacherController extends AdminController
             'join_date' => ['nullable', 'date'],
             'status' => ['required', 'in:active,inactive'],
             'bio' => ['nullable', 'string', 'max:1000'],
-            'branch_id' => ['required', new UserBranchRule()],
+            'branch_id' => ['required', 'exists:branches,id', new UserBranchRule()],
         ]);
 
         $teacher->update($validated);

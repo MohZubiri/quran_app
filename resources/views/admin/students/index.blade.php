@@ -24,12 +24,19 @@
         <div class="mb-3">
             <form action="{{ route('admin.students.index') }}" method="GET" class="row g-3">
                 <div class="col-md-3">
-                    <select name="branch_id" class="form-select">
-                        <option value="">-- جميع الفروع --</option>
-                        @foreach($branches as $branch)
-                            <option value="{{ $branch->id }}" {{ request('branch_id') == $branch->id ? 'selected' : '' }}>{{ $branch->name }}</option>
-                        @endforeach
+                    <select name="branch_id" class="form-select" {{ isset($defaultBranch) && $defaultBranch ? 'disabled' : '' }}>
+                        @if(!isset($defaultBranch) || !$defaultBranch)
+                            <option value="">-- جميع الفروع --</option>
+                            @foreach($branches as $branch)
+                                <option value="{{ $branch->id }}" {{ request('branch_id') == $branch->id ? 'selected' : '' }}>{{ $branch->name }}</option>
+                            @endforeach
+                        @else
+                            <option value="{{ $defaultBranch->id }}" selected>{{ $defaultBranch->name }}</option>
+                        @endif
                     </select>
+                    @if(isset($defaultBranch) && $defaultBranch)
+                        <input type="hidden" name="branch_id" value="{{ $defaultBranch->id }}">
+                    @endif
                 </div>
                 <div class="col-md-3">
                     <input type="text" name="search" class="form-control" placeholder="بحث بالاسم أو رقم الواتس" value="{{ request('search') }}">

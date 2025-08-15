@@ -84,6 +84,14 @@
                                 <span class="badge bg-success">تلاوة</span>
                             @elseif($grade->grade_type == 'behavior')
                                 <span class="badge bg-warning">سلوك</span>
+                            @elseif($grade->grade_type == 'achievement')
+                                <span class="badge bg-primary">الإنجاز</span>
+                            @elseif($grade->grade_type == 'attendance')
+                                <span class="badge bg-info">الحضور</span>
+                            @elseif($grade->grade_type == 'appearance')
+                                <span class="badge bg-warning">المظهر</span>
+                            @elseif($grade->grade_type == 'plan_score')
+                                <span class="badge bg-purple" style="background-color: #6f42c1;">الإنجاز اليومي من الخطة</span>
                             @endif
                         </p>
                     </div>
