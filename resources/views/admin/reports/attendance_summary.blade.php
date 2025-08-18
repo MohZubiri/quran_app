@@ -4,7 +4,7 @@
 
 @section('actions')
 <div class="btn-group" role="group">
-    <a href="{{ route('admin.reports.index') }}" class="btn btn-sm btn-secondary">
+    <a href="{{ url('/admin/reports') }}" class="btn btn-sm btn-secondary">
         <i class="fas fa-arrow-right me-1"></i> العودة إلى قائمة التقارير
     </a>
     <button type="button" class="btn btn-sm btn-success" id="exportExcelBtn">
@@ -26,7 +26,7 @@
         <h5 class="card-title">فلاتر البحث</h5>
     </div>
     <div class="card-body">
-        <form action="{{ route('admin.reports.attendance_summary') }}" method="GET" id="filter-form">
+        <form action="{{ url('/admin/reports/attendance-summary') }}" method="GET" id="filter-form">
             <div class="row g-3">
                 <div class="col-md-3">
                     <label for="branch_id" class="form-label">الفرع</label>
@@ -62,7 +62,7 @@
                     <button type="submit" class="btn btn-primary me-2">
                         <i class="fas fa-search me-1"></i> بحث
                     </button>
-                    <a href="{{ route('admin.reports.attendance_summary') }}" class="btn btn-secondary">
+                    <a href="{{ url('/admin/reports/attendance-summary') }}" class="btn btn-secondary">
                         <i class="fas fa-redo me-1"></i> إعادة تعيين
                     </a>
                 </div>
@@ -167,7 +167,7 @@
                     <tr>
                         <td>{{ $index + 1 }}</td>
                         <td>
-                            <a href="{{ route('admin.groups.show', $group['id']) }}">
+                            <a href="{{ url('/admin/groups/' . $group['id']) }}">
                                 {{ $group['name'] }}
                             </a>
                         </td>
@@ -207,10 +207,10 @@
                         </td>
                         <td>
                             <div class="btn-group" role="group">
-                                <a href="{{ route('admin.groups.show', $group['id']) }}" class="btn btn-sm btn-info">
+                                <a href="{{ url('/admin/groups/' . $group['id']) }}" class="btn btn-sm btn-info">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <a href="{{ route('admin.reports.attendance_by_group', ['group_id' => $group['id']]) }}" class="btn btn-sm btn-primary">
+                                <a href="{{ url('/admin/reports/attendance-by-group?group_id=' . $group['id']) }}" class="btn btn-sm btn-primary">
                                     <i class="fas fa-chart-bar"></i>
                                 </a>
                             </div>
@@ -248,12 +248,12 @@
                     <tr>
                         <td>{{ $index + 1 }}</td>
                         <td>
-                            <a href="{{ route('admin.students.show', $student['id']) }}">
+                            <a href="{{ url('/admin/students/' . $student['id']) }}">
                                 {{ $student['name'] }}
                             </a>
                         </td>
                         <td>
-                            <a href="{{ route('admin.groups.show', $student['group_id']) }}">
+                            <a href="{{ url('/admin/groups/' . $student['group_id']) }}">
                                 {{ $student['group_name'] }}
                             </a>
                         </td>
@@ -270,10 +270,10 @@
                         <td>{{ $student['late_count'] }}</td>
                         <td>
                             <div class="btn-group" role="group">
-                                <a href="{{ route('admin.students.show', $student['id']) }}" class="btn btn-sm btn-info">
+                                <a href="{{ url('/admin/students/' . $student['id']) }}" class="btn btn-sm btn-info">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <a href="{{ route('admin.reports.student_progress', ['student_id' => $student['id']]) }}#attendance" class="btn btn-sm btn-primary">
+                                <a href="{{ url('/admin/reports/student-progress?student_id=' . $student['id']) }}#attendance" class="btn btn-sm btn-primary">
                                     <i class="fas fa-chart-line"></i>
                                 </a>
                             </div>
@@ -419,11 +419,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // تصدير البيانات
     document.getElementById('exportExcelBtn').addEventListener('click', function() {
-        window.location.href = "{{ route('admin.exports.attendance', ['format' => 'excel']) }}" + window.location.search;
+        window.location.href = "{{ url('/admin/exports/attendance/excel') }}" + window.location.search;
     });
 
     document.getElementById('exportPdfBtn').addEventListener('click', function() {
-        window.location.href = "{{ route('admin.exports.attendance', ['format' => 'pdf']) }}" + window.location.search;
+        window.location.href = "{{ url('/admin/exports/attendance/pdf') }}" + window.location.search;
     });
 
     // طباعة التقرير

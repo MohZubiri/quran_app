@@ -25,19 +25,19 @@
             <div class="card-body">
                 <p class="card-text">تقارير مفصلة عن أداء الطلاب، مستوى التقدم، والإحصائيات العامة.</p>
                 <div class="list-group mt-3">
-                    <a href="{{ route('admin.reports.students') }}" class="list-group-item list-group-item-action">
+                    <a href="{{ url('/admin/reports/students') }}" class="list-group-item list-group-item-action">
                         <i class="fas fa-chart-line me-2"></i> أداء الطلاب
                     </a>
-                    <a href="{{ route('admin.reports.student_progress') }}" class="list-group-item list-group-item-action">
+                    <a href="{{ url('/admin/reports/student-progress') }}" class="list-group-item list-group-item-action">
                         <i class="fas fa-tasks me-2"></i> تقدم الطلاب
                     </a>
-                    <a href="{{ route('admin.reports.student_comparison') }}" class="list-group-item list-group-item-action">
+                    <a href="{{ url('/admin/reports/student-comparison') }}" class="list-group-item list-group-item-action">
                         <i class="fas fa-balance-scale me-2"></i> مقارنة بين الطلاب
                     </a>
                 </div>
             </div>
             <div class="card-footer">
-                <a href="{{ route('admin.reports.students') }}" class="btn btn-primary btn-sm w-100">
+                <a href="{{ url('/admin/reports/students') }}" class="btn btn-primary btn-sm w-100">
                     <i class="fas fa-arrow-circle-left me-1"></i> عرض جميع تقارير الطلاب
                 </a>
             </div>
@@ -54,19 +54,19 @@
             <div class="card-body">
                 <p class="card-text">إحصائيات وتقارير تفصيلية عن حضور الطلاب والمعلمين في الحلقات.</p>
                 <div class="list-group mt-3">
-                    <a href="{{ route('admin.reports.attendance_summary') }}" class="list-group-item list-group-item-action">
+                    <a href="{{ url('/admin/reports/attendance-summary') }}" class="list-group-item list-group-item-action">
                         <i class="fas fa-chart-pie me-2"></i> ملخص الحضور
                     </a>
-                    <a href="{{ route('admin.reports.attendance_by_group') }}" class="list-group-item list-group-item-action">
+                    <a href="{{ url('/admin/reports/attendance-by-group') }}" class="list-group-item list-group-item-action">
                         <i class="fas fa-users me-2"></i> الحضور حسب الحلقة
                     </a>
-                    <a href="{{ route('admin.reports.attendance_trends') }}" class="list-group-item list-group-item-action">
+                    <a href="{{ url('/admin/reports/attendance-trends') }}" class="list-group-item list-group-item-action">
                         <i class="fas fa-chart-line me-2"></i> اتجاهات الحضور
                     </a>
                 </div>
             </div>
             <div class="card-footer">
-                <a href="{{ route('admin.reports.attendance') }}" class="btn btn-success btn-sm w-100">
+                <a href="{{ url('/admin/reports/attendance') }}" class="btn btn-success btn-sm w-100">
                     <i class="fas fa-arrow-circle-left me-1"></i> عرض جميع تقارير الحضور
                 </a>
             </div>
@@ -83,19 +83,22 @@
             <div class="card-body">
                 <p class="card-text">تقارير وإحصائيات عن تقييمات الطلاب ومستويات الأداء.</p>
                 <div class="list-group mt-3">
-                    <a href="{{ route('admin.reports.grades_summary') }}" class="list-group-item list-group-item-action">
+                    <a href="{{ url('/admin/reports/monthly') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-calendar-alt me-2"></i> التقرير الشهري
+                    </a>
+                    <a href="{{ url('/admin/reports/grades-summary') }}" class="list-group-item list-group-item-action">
                         <i class="fas fa-chart-bar me-2"></i> ملخص التقييمات
                     </a>
-                    <a href="{{ route('admin.reports.grades_by_subject') }}" class="list-group-item list-group-item-action">
+                    <a href="{{ url('/admin/reports/grades-by-subject') }}" class="list-group-item list-group-item-action">
                         <i class="fas fa-book me-2"></i> التقييمات حسب المادة
                     </a>
-                    <a href="{{ route('admin.reports.grades_by_teacher') }}" class="list-group-item list-group-item-action">
+                    <a href="{{ url('/admin/reports/grades-by-teacher') }}" class="list-group-item list-group-item-action">
                         <i class="fas fa-chalkboard-teacher me-2"></i> التقييمات حسب المعلم
                     </a>
                 </div>
             </div>
             <div class="card-footer">
-                <a href="{{ route('admin.reports.grades') }}" class="btn btn-info btn-sm w-100">
+                <a href="{{ url('/admin/reports/grades') }}" class="btn btn-info btn-sm w-100">
                     <i class="fas fa-arrow-circle-left me-1"></i> عرض جميع تقارير التقييمات
                 </a>
             </div>
@@ -114,20 +117,20 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="list-group mt-3">
-                            <a href="{{ route('admin.reports.performance_by_branch') }}" class="list-group-item list-group-item-action">
+                            <a href="{{ url('/admin/reports/performance-by-branch') }}" class="list-group-item list-group-item-action">
                                 <i class="fas fa-code-branch me-2"></i> الأداء حسب الفرع
                             </a>
-                            <a href="{{ route('admin.reports.performance_by_group') }}" class="list-group-item list-group-item-action">
+                            <a href="{{ url('/admin/reports/performance-by-group') }}" class="list-group-item list-group-item-action">
                                 <i class="fas fa-users me-2"></i> الأداء حسب الحلقة
                             </a>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="list-group mt-3">
-                            <a href="{{ route('admin.reports.performance_trends') }}" class="list-group-item list-group-item-action">
+                            <a href="{{ url('/admin/reports/performance-trends') }}" class="list-group-item list-group-item-action">
                                 <i class="fas fa-chart-line me-2"></i> اتجاهات الأداء
                             </a>
-                            <a href="{{ route('admin.reports.performance_comparisons') }}" class="list-group-item list-group-item-action">
+                            <a href="{{ url('/admin/reports/performance-comparisons') }}" class="list-group-item list-group-item-action">
                                 <i class="fas fa-balance-scale me-2"></i> مقارنات الأداء
                             </a>
                         </div>
@@ -135,7 +138,7 @@
                 </div>
             </div>
             <div class="card-footer">
-                <a href="{{ route('admin.reports.performance') }}" class="btn btn-warning btn-sm w-100">
+                <a href="{{ url('/admin/reports/performance') }}" class="btn btn-warning btn-sm w-100">
                     <i class="fas fa-arrow-circle-left me-1"></i> عرض جميع تقارير الأداء
                 </a>
             </div>
@@ -155,10 +158,10 @@
                     <div class="col-md-6">
                         <h6 class="fw-bold mt-3">تصدير بيانات الطلاب</h6>
                         <div class="list-group mt-2">
-                            <a href="{{ route('admin.exports.students', ['format' => 'excel']) }}" class="list-group-item list-group-item-action">
+                            <a href="#" class="list-group-item list-group-item-action" onclick="alert('Export functionality will be implemented soon')">
                                 <i class="fas fa-file-excel me-2 text-success"></i> تصدير بصيغة Excel
                             </a>
-                            <a href="{{ route('admin.exports.students', ['format' => 'pdf']) }}" class="list-group-item list-group-item-action">
+                            <a href="#" class="list-group-item list-group-item-action" onclick="alert('Export functionality will be implemented soon')">
                                 <i class="fas fa-file-pdf me-2 text-danger"></i> تصدير بصيغة PDF
                             </a>
                         </div>
@@ -166,10 +169,10 @@
                     <div class="col-md-6">
                         <h6 class="fw-bold mt-3">تصدير بيانات التقييمات</h6>
                         <div class="list-group mt-2">
-                            <a href="{{ route('admin.exports.grades', ['format' => 'excel']) }}" class="list-group-item list-group-item-action">
+                            <a href="#" class="list-group-item list-group-item-action" onclick="alert('Export functionality will be implemented soon')">
                                 <i class="fas fa-file-excel me-2 text-success"></i> تصدير بصيغة Excel
                             </a>
-                            <a href="{{ route('admin.exports.grades', ['format' => 'pdf']) }}" class="list-group-item list-group-item-action">
+                            <a href="#" class="list-group-item list-group-item-action" onclick="alert('Export functionality will be implemented soon')">
                                 <i class="fas fa-file-pdf me-2 text-danger"></i> تصدير بصيغة PDF
                             </a>
                         </div>
@@ -177,7 +180,7 @@
                 </div>
             </div>
             <div class="card-footer">
-                <a href="{{ route('admin.exports.index') }}" class="btn btn-danger btn-sm w-100">
+                <a href="#" class="btn btn-danger btn-sm w-100" onclick="alert('Export functionality will be implemented soon')">
                     <i class="fas fa-arrow-circle-left me-1"></i> عرض جميع خيارات التصدير
                 </a>
             </div>

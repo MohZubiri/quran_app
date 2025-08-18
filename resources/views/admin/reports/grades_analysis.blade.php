@@ -4,7 +4,7 @@
 
 @section('actions')
 <div class="btn-group" role="group">
-    <a href="{{ route('admin.reports.index') }}" class="btn btn-sm btn-secondary">
+    <a href="{{ url('/admin/reports') }}" class="btn btn-sm btn-secondary">
         <i class="fas fa-arrow-right me-1"></i> العودة إلى قائمة التقارير
     </a>
     <button type="button" class="btn btn-sm btn-success" id="exportExcelBtn">
@@ -23,7 +23,7 @@
         <h5 class="card-title">فلاتر البحث</h5>
     </div>
     <div class="card-body">
-        <form action="{{ route('admin.reports.grades_analysis') }}" method="GET" id="filter-form">
+        <form action="{{ url('/admin/reports/grades-analysis') }}" method="GET" id="filter-form">
             <div class="row g-3">
                 <div class="col-md-3">
                     <label for="branch_id" class="form-label">الفرع</label>
@@ -84,7 +84,7 @@
                     <button type="submit" class="btn btn-primary me-2">
                         <i class="fas fa-search me-1"></i> بحث
                     </button>
-                    <a href="{{ route('admin.reports.grades_analysis') }}" class="btn btn-secondary">
+                    <a href="{{ url('/admin/reports/grades-analysis') }}" class="btn btn-secondary">
                         <i class="fas fa-redo me-1"></i> إعادة تعيين
                     </a>
                 </div>
@@ -195,13 +195,13 @@
                     <tr>
                         <td>{{ $index + 1 }}</td>
                         <td>
-                            <a href="{{ route('admin.groups.show', $group['id']) }}">
+                            <a href="{{ url('/admin/groups/' . $group['id']) }}">
                                 {{ $group['name'] }}
                             </a>
                         </td>
                         <td>{{ $group['branch_name'] }}</td>
                         <td>
-                            <a href="{{ route('admin.teachers.show', $group['teacher_id']) }}">
+                            <a href="{{ url('/admin/teachers/' . $group['teacher_id']) }}">
                                 {{ $group['teacher_name'] }}
                             </a>
                         </td>
@@ -253,10 +253,10 @@
                         </td>
                         <td>
                             <div class="btn-group" role="group">
-                                <a href="{{ route('admin.groups.show', $group['id']) }}" class="btn btn-sm btn-info">
+                                <a href="{{ url('/admin/groups/' . $group['id']) }}" class="btn btn-sm btn-info">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <a href="{{ route('admin.reports.group_grades', ['group_id' => $group['id']]) }}" class="btn btn-sm btn-primary">
+                                <a href="{{ url('/admin/reports/group-grades?group_id=' . $group['id']) }}" class="btn btn-sm btn-primary">
                                     <i class="fas fa-chart-bar"></i>
                                 </a>
                             </div>
@@ -306,17 +306,17 @@
                         <td>{{ $index + 1 }}</td>
                         <td>{{ $grade['date'] }}</td>
                         <td>
-                            <a href="{{ route('admin.students.show', $grade['student_id']) }}">
+                            <a href="{{ url('/admin/students/' . $grade['student_id']) }}">
                                 {{ $grade['student_name'] }}
                             </a>
                         </td>
                         <td>
-                            <a href="{{ route('admin.groups.show', $grade['group_id']) }}">
+                            <a href="{{ url('/admin/groups/' . $grade['group_id']) }}">
                                 {{ $grade['group_name'] }}
                             </a>
                         </td>
                         <td>
-                            <a href="{{ route('admin.teachers.show', $grade['teacher_id']) }}">
+                            <a href="{{ url('/admin/teachers/' . $grade['teacher_id']) }}">
                                 {{ $grade['teacher_name'] }}
                             </a>
                         </td>
@@ -339,10 +339,10 @@
                         <td>{{ $grade['verses_covered'] ?: 'غير محدد' }}</td>
                         <td>
                             <div class="btn-group" role="group">
-                                <a href="{{ route('admin.grades.show', $grade['id']) }}" class="btn btn-sm btn-info">
+                                <a href="{{ url('/admin/grades/' . $grade['id']) }}" class="btn btn-sm btn-info">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <a href="{{ route('admin.grades.edit', $grade['id']) }}" class="btn btn-sm btn-primary">
+                                <a href="{{ url('/admin/grades/' . $grade['id'] . '/edit') }}" class="btn btn-sm btn-primary">
                                     <i class="fas fa-edit"></i>
                                 </a>
                             </div>
@@ -486,11 +486,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // تصدير البيانات
     document.getElementById('exportExcelBtn').addEventListener('click', function() {
-        window.location.href = "{{ route('admin.exports.grades', ['format' => 'excel']) }}" + window.location.search;
+        window.location.href = "{{ url('/admin/exports/grades/excel') }}" + window.location.search;
     });
 
     document.getElementById('exportPdfBtn').addEventListener('click', function() {
-        window.location.href = "{{ route('admin.exports.grades', ['format' => 'pdf']) }}" + window.location.search;
+        window.location.href = "{{ url('/admin/exports/grades/pdf') }}" + window.location.search;
     });
 });
 </script>

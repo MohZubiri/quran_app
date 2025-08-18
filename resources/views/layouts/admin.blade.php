@@ -199,6 +199,15 @@
                         </li>
                         @endif
 
+                        @if(auth()->user()->can('view-reports'))
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('admin.reports*') ? 'active' : '' }}" href="{{ route('admin.reports.index') }}">
+                                <i class="fas fa-chart-bar me-2"></i>
+                                التقارير والإحصائيات
+                            </a>
+                        </li>
+                        @endif
+
                         <!-- إدارة المستخدمين -->
                         @if(auth()->user()->can('view-users'))
                         <li class="mt-3 nav-item">

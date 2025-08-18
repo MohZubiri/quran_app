@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\GradesController;
 use App\Http\Controllers\Admin\UserPermissionController;
 use App\Http\Controllers\Student\StudentDashboardController;
 use App\Http\Controllers\Admin\StudyPlanController;
+use App\Http\Controllers\Admin\ReportsController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -79,6 +80,31 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // Progress Logs
         Route::resource('progress-logs', ProgressLogController::class);
+
+        // Reports
+        Route::get('/reports', [ReportsController::class, 'index'])->name('reports.index');
+        Route::get('/reports/monthly', [ReportsController::class, 'monthlyReport'])->name('reports.monthly');
+        Route::get('/reports/students', [ReportsController::class, 'studentsReport'])->name('reports.students');
+        Route::get('/reports/attendance-summary', [ReportsController::class, 'attendanceSummary'])->name('reports.attendance_summary');
+        Route::get('/reports/grades-summary', [ReportsController::class, 'gradesSummary'])->name('reports.grades_summary');
+        
+        // Additional report routes
+        Route::get('/reports/student-progress', [ReportsController::class, 'studentProgressReport'])->name('reports.student_progress');
+        Route::get('/reports/student-comparison', [ReportsController::class, 'studentComparisonReport'])->name('reports.student_comparison');
+        Route::get('/reports/attendance', [ReportsController::class, 'attendanceReport'])->name('reports.attendance');
+        Route::get('/reports/attendance-by-group', [ReportsController::class, 'attendanceByGroupReport'])->name('reports.attendance_by_group');
+        Route::get('/reports/attendance-trends', [ReportsController::class, 'attendanceTrendsReport'])->name('reports.attendance_trends');
+        Route::get('/reports/grades', [ReportsController::class, 'gradesReport'])->name('reports.grades');
+        Route::get('/reports/grades-by-subject', [ReportsController::class, 'gradesBySubjectReport'])->name('reports.grades_by_subject');
+        Route::get('/reports/grades-by-teacher', [ReportsController::class, 'gradesByTeacherReport'])->name('reports.grades_by_teacher');
+        Route::get('/reports/performance', [ReportsController::class, 'performanceReport'])->name('reports.performance');
+        Route::get('/reports/performance-by-branch', [ReportsController::class, 'performanceByBranchReport'])->name('reports.performance_by_branch');
+        Route::get('/reports/performance-by-group', [ReportsController::class, 'performanceByGroupReport'])->name('reports.performance_by_group');
+        Route::get('/reports/performance-trends', [ReportsController::class, 'performanceTrendsReport'])->name('reports.performance_trends');
+        Route::get('/reports/performance-comparisons', [ReportsController::class, 'performanceComparisonsReport'])->name('reports.performance_comparisons');
+        
+        // API routes for AJAX requests
+        Route::get('/api/branches/{branchId}/groups', [ReportsController::class, 'getGroupsByBranch'])->name('api.branches.groups');
 
         // User Permissions Management
         Route::middleware(['permission:manage-user-permissions'])->group(function () {
