@@ -40,7 +40,10 @@ class Student extends Model
     {
         static::addGlobalScope(new StudentScope);
     }
-
+   public function studentPlan()
+    {
+        return $this->hasOne(studentPlan::class, 'student_id', 'id');
+    }
     /**
      * Get the user associated with the student.
      */

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\Group;
 use App\Models\Branch;
+use App\Models\StudentPlan;
 use App\Models\Teacher;
 use App\Models\Subject;
 use Illuminate\Http\Request;
@@ -29,14 +30,14 @@ class GroupController extends AdminController
     {
         // التصفية تتم تلقائياً عبر Global Scope
         $groups = Group::with(['branch', 'teacher'])
-                    
+
                       ->paginate(15);
 
         // بيانات الفلاتر (ستتم تصفيتها تلقائياً بواسطة Global Scopes)
         $branches = Branch::all();
         $teachers = Teacher::all();
         $subjects = Subject::all();
-                      
+
         return view('admin.groups.index', compact('groups', 'branches', 'teachers', 'subjects'));
     }
 
@@ -55,7 +56,7 @@ class GroupController extends AdminController
         if (auth()->user()->hasRole('teacher')) {
             $preselectedTeacher = auth()->user()->teacher->id;
         }
-       
+
         // التحقق من وجود فرع واحد فقط
         $defaultBranch = null;
         if ($branches->count() === 1) {
@@ -76,7 +77,7 @@ class GroupController extends AdminController
             // إذا كان هناك فرع واحد فقط، نضيفه للطلب
             $request->merge(['branch_id' => $branches->first()->id]);
         }
-        
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'branch_id' => ['required', 'exists:branches,id', new \App\Rules\UserBranchRule],
@@ -84,7 +85,7 @@ class GroupController extends AdminController
             'subject_id' => ['required', 'exists:subjects,id'],
             'schedule' => ['required', 'string'],
             'capacity' => ['required', 'integer', 'min:1', 'max:50'],
-           
+
             'status' => ['required', 'string', 'in:active,inactive'],
         ]);
 
@@ -101,13 +102,13 @@ class GroupController extends AdminController
     {
         // التصفية تتم تلقائياً عبر Global Scope
         $group->load([
-            'branch', 
+            'branch',
             'teacher',
             'students' => function($query) {
                 $query->withCount(['grades', 'attendances']);
             }
         ]);
-
+        $studentPlans=StudentPlan::join('students', 'student_plans.student_id', '=', 'students.id')->where('students.group_id', $group->id)->get();
         // إحصائيات المجموعة
         $stats = [
             'attendance_rate' => $group->students()->withCount([
@@ -118,7 +119,7 @@ class GroupController extends AdminController
             'average_grade' => $group->students()->withAvg('grades', 'grade')->first()->grades_avg_grade_value??0
         ];
 
-        return view('admin.groups.show', compact('group', 'stats'));
+        return view('admin.groups.show', compact('group', 'stats','studentPlans'));
     }
 
     /**
@@ -133,7 +134,7 @@ class GroupController extends AdminController
         $branches = Branch::all();
         $teachers = Teacher::all();
         $subjects = Subject::all();
-        
+
         // التحقق من وجود فرع واحد فقط
         $defaultBranch = null;
         if ($branches->count() === 1) {
@@ -154,7 +155,7 @@ class GroupController extends AdminController
             // إذا كان هناك فرع واحد فقط، نضيفه للطلب
             $request->merge(['branch_id' => $branches->first()->id]);
         }
-        
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'branch_id' => ['required', 'exists:branches,id', new \App\Rules\UserBranchRule],
@@ -162,7 +163,7 @@ class GroupController extends AdminController
             'subject_id' => ['required', 'exists:subjects,id'],
             'schedule' => ['required', 'string'],
             'capacity' => ['required', 'integer', 'min:1', 'max:50'],
-            
+
             'status' => ['required', 'string', 'in:active,inactive'],
         ]);
 

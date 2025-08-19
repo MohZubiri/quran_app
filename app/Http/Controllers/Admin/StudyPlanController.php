@@ -7,11 +7,11 @@ use App\Models\Group;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-class StudyPlanController extends Controller
+class StudentPlanController extends Controller
 {
     public function index()
     {
-        $plans = StudyPlan::all();
+        $plans = StudentPlan::all();
         return view('admin.study_plans.index', compact('plans'));
     }
 

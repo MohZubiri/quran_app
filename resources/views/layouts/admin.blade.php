@@ -173,12 +173,7 @@
                         </li>
                         @endif
                         @if(auth()->user()->can('view-plans'))
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.study_plans*') ? 'active' : '' }}" href="{{ route('admin.study_plans.index') }}">
-                                <i class="fas fa-clipboard-check me-2"></i>
-                                الخطط الدراسية
-                            </a>
-                        </li>
+
                         @endif
 
                         @if(auth()->user()->can('view-grades')&& auth()->user()->checkGroup())

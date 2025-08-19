@@ -30,10 +30,7 @@ class Group extends Model
     {
         static::addGlobalScope(new GroupScope);
     }
-    public function studyPlan()
-    {
-        return $this->hasOne(StudyPlan::class, 'group_number', 'id');
-    }
+
     /**
      * Get the branch that the group belongs to.
      */

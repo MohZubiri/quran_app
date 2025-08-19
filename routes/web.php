@@ -57,7 +57,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // Enrollments
         Route::resource('enrollments', EnrollmentController::class);
-        Route::resource('study_plans', StudyPlanController::class);
+        Route::resource('student_plans', StudentPlanController::class);
 
         // User Management
         Route::resource('users', UserController::class);
@@ -87,7 +87,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/reports/students', [ReportsController::class, 'studentsReport'])->name('reports.students');
         Route::get('/reports/attendance-summary', [ReportsController::class, 'attendanceSummary'])->name('reports.attendance_summary');
         Route::get('/reports/grades-summary', [ReportsController::class, 'gradesSummary'])->name('reports.grades_summary');
-        
+
         // Additional report routes
         Route::get('/reports/student-progress', [ReportsController::class, 'studentProgressReport'])->name('reports.student_progress');
         Route::get('/reports/student-comparison', [ReportsController::class, 'studentComparisonReport'])->name('reports.student_comparison');
@@ -102,7 +102,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/reports/performance-by-group', [ReportsController::class, 'performanceByGroupReport'])->name('reports.performance_by_group');
         Route::get('/reports/performance-trends', [ReportsController::class, 'performanceTrendsReport'])->name('reports.performance_trends');
         Route::get('/reports/performance-comparisons', [ReportsController::class, 'performanceComparisonsReport'])->name('reports.performance_comparisons');
-        
+
         // API routes for AJAX requests
         Route::get('/api/branches/{branchId}/groups', [ReportsController::class, 'getGroupsByBranch'])->name('api.branches.groups');
 
